@@ -3,68 +3,6 @@
 
 {% block content %}
 
-{% if current_user.is_authenticated %}
-<!-- ── Logged In: Quick Welcome Banner ──────────────── -->
-<section class="dark:bg-slate-900 bg-slate-50 pt-8 pb-4">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="dark:bg-slate-800 bg-white rounded-2xl p-6 border dark:border-slate-700 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-
-            <!-- Left: User Info -->
-            <div class="flex items-center space-x-4">
-                <!-- Avatar -->
-                <div class="w-14 h-14 gradient-bg rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/25 flex-shrink-0">
-                    <span class="text-white text-xl font-bold">
-                        {{ current_user.full_name[0].upper() }}
-                    </span>
-                </div>
-                <!-- Info -->
-                <div>
-                    <div class="flex items-center space-x-2">
-                        <h2 class="text-lg font-bold dark:text-white text-slate-800">
-                            👋 Welcome back, {{ current_user.full_name.split()[0] }}!
-                        </h2>
-                        {% if current_user.is_admin %}
-                            <span class="text-xs px-2 py-0.5 gradient-bg text-white rounded-lg font-medium">
-                                Admin
-                            </span>
-                        {% endif %}
-                    </div>
-                    <p class="text-sm dark:text-slate-400 text-slate-500">
-                        {{ current_user.email }}
-                    </p>
-                    <p class="text-xs dark:text-slate-500 text-slate-400 mt-0.5">
-                        Last login:
-                        {% if current_user.last_login %}
-                            {{ current_user.last_login.strftime('%d %b %Y, %I:%M %p') }}
-                        {% else %}
-                            First time login!
-                        {% endif %}
-                    </p>
-                </div>
-            </div>
-
-            <!-- Right: Quick Actions -->
-            <div class="flex items-center space-x-3">
-                {% if current_user.is_admin %}
-                    <a href="#"
-                       class="px-4 py-2 text-sm font-semibold gradient-bg text-white rounded-xl hover:opacity-90 transition-all shadow-lg shadow-indigo-500/25">
-                        🛡️ Admin Panel
-                    </a>
-                {% endif %}
-                <a href="#"
-                   class="px-4 py-2 text-sm font-semibold dark:bg-slate-700 bg-slate-100 dark:text-slate-200 text-slate-700 rounded-xl hover:scale-105 transition-all border dark:border-slate-600 border-slate-200">
-                    📊 Dashboard
-                </a>
-                <a href="{{ url_for('auth.logout') }}"
-                   class="px-4 py-2 text-sm font-medium dark:text-slate-400 text-slate-500 hover:text-danger transition-colors">
-                    Logout
-                </a>
-            </div>
-        </div>
-    </div>
-</section>
-{% endif %}
-
 <!-- HERO SECTION -->
 <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
     <!-- Background -->

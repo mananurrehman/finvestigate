@@ -49,6 +49,7 @@ class User(db.Model, UserMixin):
     password    = db.Column(db.String(255), nullable=False)               # always hashed
     is_active   = db.Column(db.Boolean, default=True)
     is_verified = db.Column(db.Boolean, default=False)
+    currency_preference = db.Column(db.String(3), default='PKR', nullable=False)
 
     # RBAC
     role_id     = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)

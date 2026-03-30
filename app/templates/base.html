@@ -116,10 +116,10 @@
 
                     <!-- Desktop Nav Links -->
                     <div class="hidden md:flex items-center space-x-8">
-                        <a href="{{ url_for('main.index') }}"        class="nav-link text-sm font-medium dark:text-slate-300 text-slate-600 hover:text-primary transition-colors">Home</a>
-                        <a href="{{ url_for('main.about') }}"        class="nav-link text-sm font-medium dark:text-slate-300 text-slate-600 hover:text-primary transition-colors">About</a>
-                        <a href="{{ url_for('main.how_to_use') }}"   class="nav-link text-sm font-medium dark:text-slate-300 text-slate-600 hover:text-primary transition-colors">How to Use</a>
-                        <a href="{{ url_for('main.contact') }}"      class="nav-link text-sm font-medium dark:text-slate-300 text-slate-600 hover:text-primary transition-colors">Contact</a>
+                        <a href="{{ url_for('main.index') }}"      class="nav-link text-sm font-medium dark:text-slate-300 text-slate-600 hover:text-primary transition-colors">Home</a>
+                        <a href="{{ url_for('main.about') }}"      class="nav-link text-sm font-medium dark:text-slate-300 text-slate-600 hover:text-primary transition-colors">About</a>
+                        <a href="{{ url_for('main.how_to_use') }}" class="nav-link text-sm font-medium dark:text-slate-300 text-slate-600 hover:text-primary transition-colors">How to Use</a>
+                        <a href="{{ url_for('main.contact') }}"    class="nav-link text-sm font-medium dark:text-slate-300 text-slate-600 hover:text-primary transition-colors">Contact</a>
                     </div>
 
                     <!-- Right Side -->
@@ -149,20 +149,25 @@
                                         </span>
                                     {% endif %}
                                 </div>
+                                <!-- Dashboard Button -->
+                                <a href="{{ url_for('main.dashboard') }}"
+                                class="text-sm font-semibold px-4 py-2 dark:bg-slate-700 bg-slate-100 dark:text-slate-200 text-slate-700 rounded-lg border dark:border-slate-600 border-slate-200 hover:scale-105 transition-all">
+                                    📊 Dashboard
+                                </a>
                                 <!-- Logout -->
                                 <a href="{{ url_for('auth.logout') }}"
-                                   class="text-sm font-medium px-4 py-2 rounded-lg border dark:border-slate-600 border-slate-300 dark:text-slate-300 text-slate-600 hover:text-danger hover:border-danger transition-colors">
+                                class="text-sm font-medium px-4 py-2 rounded-lg border dark:border-slate-600 border-slate-300 dark:text-slate-300 text-slate-600 hover:text-danger hover:border-danger transition-colors">
                                     Logout
                                 </a>
                             </div>
                         {% else %}
                             <!-- Logged Out State -->
                             <a href="{{ url_for('auth.login') }}"
-                               class="hidden sm:block text-sm font-medium px-4 py-2 rounded-lg dark:text-slate-300 text-slate-600 hover:text-primary transition-colors">
+                            class="hidden sm:block text-sm font-medium px-4 py-2 rounded-lg dark:text-slate-300 text-slate-600 hover:text-primary transition-colors">
                                 Login
                             </a>
                             <a href="{{ url_for('auth.signup') }}"
-                               class="hidden sm:block text-sm font-semibold px-4 py-2 gradient-bg text-white rounded-lg hover:opacity-90 hover:scale-105 transition-all duration-200 shadow-lg">
+                            class="hidden sm:block text-sm font-semibold px-4 py-2 gradient-bg text-white rounded-lg hover:opacity-90 hover:scale-105 transition-all duration-200 shadow-lg">
                                 Sign Up
                             </a>
                         {% endif %}
@@ -177,36 +182,18 @@
                 <!-- ── Mobile Menu ───────────────────────────── -->
                 <div id="mobileMenu" class="hidden md:hidden pb-4">
                     <div class="flex flex-col space-y-3 pt-2 border-t dark:border-slate-700 border-slate-200">
-                        <a href="{{ url_for('main.index') }}"      class="text-sm font-medium dark:text-slate-300 text-slate-600 hover:text-primary py-2 px-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">🏠 Home</a>
-                        <a href="{{ url_for('main.about') }}"      class="text-sm font-medium dark:text-slate-300 text-slate-600 hover:text-primary py-2 px-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">ℹ️ About</a>
-                        <a href="{{ url_for('main.how_to_use') }}" class="text-sm font-medium dark:text-slate-300 text-slate-600 hover:text-primary py-2 px-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">📖 How to Use</a>
-                        <a href="{{ url_for('main.contact') }}"    class="text-sm font-medium dark:text-slate-300 text-slate-600 hover:text-primary py-2 px-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">📬 Contact</a>
+                        <a href="{{ url_for('main.index') }}"      ...>🏠 Home</a>
+                        <a href="{{ url_for('main.about') }}"      ...>ℹ️ About</a>
+                        <a href="{{ url_for('main.how_to_use') }}" ...>📖 How to Use</a>
+                        <a href="{{ url_for('main.contact') }}"    ...>📬 Contact</a>
 
-                        <div class="flex space-x-3 pt-2 border-t dark:border-slate-700 border-slate-200">
-                            {% if current_user.is_authenticated %}
-                                <div class="flex-1 flex items-center space-x-2 px-2 py-2">
-                                    <div class="w-6 h-6 gradient-bg rounded-full flex items-center justify-center">
-                                        <span class="text-white text-xs font-bold">{{ current_user.full_name[0].upper() }}</span>
-                                    </div>
-                                    <span class="text-sm dark:text-slate-300 text-slate-600 font-medium">{{ current_user.full_name.split()[0] }}</span>
-                                    {% if current_user.is_admin %}
-                                        <span class="text-xs px-1.5 py-0.5 gradient-bg text-white rounded-md">Admin</span>
-                                    {% endif %}
-                                </div>
-                                <a href="{{ url_for('auth.logout') }}"
-                                   class="text-sm font-semibold px-4 py-2 border border-danger text-danger rounded-lg hover:bg-danger/10 transition-all">
-                                    Logout
-                                </a>
-                            {% else %}
-                                <a href="{{ url_for('auth.login') }}"
-                                   class="flex-1 text-center text-sm font-medium px-4 py-2 rounded-lg border dark:border-slate-600 border-slate-300 dark:text-slate-300 text-slate-600 hover:text-primary transition-colors">
-                                    Login
-                                </a>
-                                <a href="{{ url_for('auth.signup') }}"
-                                   class="flex-1 text-center text-sm font-semibold px-4 py-2 gradient-bg text-white rounded-lg hover:opacity-90 transition-all">
-                                    Sign Up
-                                </a>
-                            {% endif %}
+                        <!-- ADD THIS BELOW CONTACT -->
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('main.dashboard') }}"
+                            class="text-sm font-medium dark:text-slate-300 text-slate-600 hover:text-primary py-2 px-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                            📊 Dashboard
+                            </a>
+                        {% endif %}
                         </div>
                     </div>
                 </div>
