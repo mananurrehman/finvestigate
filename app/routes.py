@@ -17,11 +17,3 @@ def how_to_use():
 @main.route('/contact')
 def contact():
     return render_template('contact.html')
-
-@main.route('/login')
-def login():
-    return render_template('auth/login.html')
-
-@main.route('/signup')
-def signup():
-    return render_template('auth/signup.html')
