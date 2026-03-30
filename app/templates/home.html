@@ -1,12 +1,199 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finvestigate 🔍</title>
-</head>
-<body>
-    <h1>Welcome to Finvestigate 🔍💰</h1>
-    <p>Investigate your finances. Track smarter. Spend wiser.</p>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Finvestigate 🔍 - Investigate Your Finances{% endblock %}
+
+{% block content %}
+
+<!-- HERO SECTION -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <!-- Background -->
+    <div class="absolute inset-0 dark:bg-slate-900 bg-slate-50">
+        <div class="absolute top-20 left-10 w-72 h-72 bg-indigo-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div class="absolute top-1/2 left-1/2 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-500"></div>
+    </div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-20">
+        <!-- Badge -->
+        <div class="inline-flex items-center space-x-2 px-4 py-2 rounded-full dark:bg-slate-800 bg-white border dark:border-slate-700 border-slate-200 shadow-sm mb-8">
+            <span class="w-2 h-2 bg-success rounded-full animate-pulse"></span>
+            <span class="text-sm dark:text-slate-300 text-slate-600 font-medium">Your Personal Finance Tracker</span>
+        </div>
+
+        <!-- Heading -->
+        <h1 class="text-5xl sm:text-6xl lg:text-7xl font-extrabold mb-6 leading-tight">
+            <span class="dark:text-white text-slate-800">Investigate</span><br>
+            <span class="gradient-text">Your Finances</span>
+        </h1>
+
+        <p class="text-lg sm:text-xl dark:text-slate-400 text-slate-500 max-w-2xl mx-auto mb-10 leading-relaxed">
+            Take control of your money. Track income, expenses, and spending habits with powerful insights and beautiful visualizations.
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+            <a href="/signup" class="w-full sm:w-auto px-8 py-4 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 hover:scale-105 transition-all duration-200 shadow-lg shadow-indigo-500/25 text-base">
+                🚀 Get Started Free
+            </a>
+            <a href="/how-to-use" class="w-full sm:w-auto px-8 py-4 dark:bg-slate-800 bg-white text-sm font-semibold dark:text-slate-200 text-slate-700 rounded-xl border dark:border-slate-700 border-slate-200 hover:scale-105 transition-all duration-200 shadow-sm">
+                📖 How it Works
+            </a>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 max-w-2xl mx-auto">
+            <div class="dark:bg-slate-800/50 bg-white rounded-2xl p-6 border dark:border-slate-700 border-slate-200 shadow-sm">
+                <div class="text-3xl font-bold gradient-text mb-1">100%</div>
+                <div class="text-sm dark:text-slate-400 text-slate-500">Free to Use</div>
+            </div>
+            <div class="dark:bg-slate-800/50 bg-white rounded-2xl p-6 border dark:border-slate-700 border-slate-200 shadow-sm">
+                <div class="text-3xl font-bold gradient-text mb-1">🔒</div>
+                <div class="text-sm dark:text-slate-400 text-slate-500">Secure & Private</div>
+            </div>
+            <div class="col-span-2 sm:col-span-1 dark:bg-slate-800/50 bg-white rounded-2xl p-6 border dark:border-slate-700 border-slate-200 shadow-sm">
+                <div class="text-3xl font-bold gradient-text mb-1">📊</div>
+                <div class="text-sm dark:text-slate-400 text-slate-500">Smart Analytics</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES SECTION -->
+<section class="py-20 dark:bg-slate-800/30 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl sm:text-4xl font-bold dark:text-white text-slate-800 mb-4">
+                Everything You Need to
+                <span class="gradient-text"> Manage Money</span>
+            </h2>
+            <p class="dark:text-slate-400 text-slate-500 max-w-xl mx-auto">
+                Powerful features designed to give you complete control over your financial life
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Feature Cards -->
+            <div class="feature-card group p-6 rounded-2xl dark:bg-slate-800 bg-slate-50 border dark:border-slate-700 border-slate-200 hover:border-primary transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1">
+                <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <span class="text-2xl">💰</span>
+                </div>
+                <h3 class="text-lg font-semibold dark:text-white text-slate-800 mb-2">Income Tracking</h3>
+                <p class="text-sm dark:text-slate-400 text-slate-500 leading-relaxed">Log and monitor all your income sources in one place with ease.</p>
+            </div>
+
+            <div class="feature-card group p-6 rounded-2xl dark:bg-slate-800 bg-slate-50 border dark:border-slate-700 border-slate-200 hover:border-secondary transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 hover:-translate-y-1">
+                <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <span class="text-2xl">📉</span>
+                </div>
+                <h3 class="text-lg font-semibold dark:text-white text-slate-800 mb-2">Expense Monitoring</h3>
+                <p class="text-sm dark:text-slate-400 text-slate-500 leading-relaxed">Track every expense and understand where your money goes.</p>
+            </div>
+
+            <div class="feature-card group p-6 rounded-2xl dark:bg-slate-800 bg-slate-50 border dark:border-slate-700 border-slate-200 hover:border-accent transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 hover:-translate-y-1">
+                <div class="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <span class="text-2xl">📊</span>
+                </div>
+                <h3 class="text-lg font-semibold dark:text-white text-slate-800 mb-2">Visual Analytics</h3>
+                <p class="text-sm dark:text-slate-400 text-slate-500 leading-relaxed">Beautiful charts and graphs to visualize your financial data.</p>
+            </div>
+
+            <div class="feature-card group p-6 rounded-2xl dark:bg-slate-800 bg-slate-50 border dark:border-slate-700 border-slate-200 hover:border-success transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/10 hover:-translate-y-1">
+                <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <span class="text-2xl">🎯</span>
+                </div>
+                <h3 class="text-lg font-semibold dark:text-white text-slate-800 mb-2">Budget Planning</h3>
+                <p class="text-sm dark:text-slate-400 text-slate-500 leading-relaxed">Set monthly budgets and get alerts when you are close to limits.</p>
+            </div>
+
+            <div class="feature-card group p-6 rounded-2xl dark:bg-slate-800 bg-slate-50 border dark:border-slate-700 border-slate-200 hover:border-warning transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/10 hover:-translate-y-1">
+                <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <span class="text-2xl">🏷️</span>
+                </div>
+                <h3 class="text-lg font-semibold dark:text-white text-slate-800 mb-2">Categories</h3>
+                <p class="text-sm dark:text-slate-400 text-slate-500 leading-relaxed">Organize transactions with smart categories and custom tags.</p>
+            </div>
+
+            <div class="feature-card group p-6 rounded-2xl dark:bg-slate-800 bg-slate-50 border dark:border-slate-700 border-slate-200 hover:border-primary transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1">
+                <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-violet-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <span class="text-2xl">📤</span>
+                </div>
+                <h3 class="text-lg font-semibold dark:text-white text-slate-800 mb-2">Export Data</h3>
+                <p class="text-sm dark:text-slate-400 text-slate-500 leading-relaxed">Export your financial data anytime in multiple formats.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS SECTION -->
+<section class="py-20 dark:bg-slate-900 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl sm:text-4xl font-bold dark:text-white text-slate-800 mb-4">
+                Get Started in
+                <span class="gradient-text">3 Simple Steps</span>
+            </h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center group">
+                <div class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-indigo-500/25">
+                    <span class="text-white font-bold text-xl">1</span>
+                </div>
+                <h3 class="text-lg font-semibold dark:text-white text-slate-800 mb-3">Create Account</h3>
+                <p class="text-sm dark:text-slate-400 text-slate-500">Sign up for free in seconds. No credit card required.</p>
+            </div>
+            <div class="text-center group">
+                <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-purple-500/25">
+                    <span class="text-white font-bold text-xl">2</span>
+                </div>
+                <h3 class="text-lg font-semibold dark:text-white text-slate-800 mb-3">Add Transactions</h3>
+                <p class="text-sm dark:text-slate-400 text-slate-500">Log your income and expenses quickly and easily.</p>
+            </div>
+            <div class="text-center group">
+                <div class="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-cyan-500/25">
+                    <span class="text-white font-bold text-xl">3</span>
+                </div>
+                <h3 class="text-lg font-semibold dark:text-white text-slate-800 mb-3">Gain Insights</h3>
+                <p class="text-sm dark:text-slate-400 text-slate-500">View analytics and take control of your financial future.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA SECTION -->
+<section class="py-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="gradient-bg rounded-3xl p-12 shadow-2xl shadow-indigo-500/25 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-20 translate-x-20"></div>
+            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-16 -translate-x-16"></div>
+            <div class="relative">
+                <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Ready to Finvestigate? 🔍</h2>
+                <p class="text-indigo-200 mb-8 text-lg">Join thousands of users who are already tracking their finances smarter.</p>
+                <a href="/signup" class="inline-block px-8 py-4 bg-white text-indigo-600 font-bold rounded-xl hover:scale-105 transition-all duration-200 shadow-lg">
+                    Start For Free →
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Animate elements on scroll
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.feature-card').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        observer.observe(card);
+    });
+</script>
+{% endblock %}

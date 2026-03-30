@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Sign Up - Finvestigate 🔍{% endblock %}
+
+{% block content %}
+<section class="min-h-screen flex items-center justify-center dark:bg-slate-900 bg-slate-50 py-20">
+    <div class="w-full max-w-md px-4">
+
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <a href="/" class="inline-flex items-center space-x-2 mb-6">
+                <div class="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
+                    <span class="text-white font-bold">F</span>
+                </div>
+                <span class="text-2xl font-bold gradient-text">Finvestigate</span>
+            </a>
+            <h1 class="text-3xl font-bold dark:text-white text-slate-800 mb-2">Create Account 🚀</h1>
+            <p class="dark:text-slate-400 text-slate-500 text-sm">Start investigating your finances today</p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="dark:bg-slate-800 bg-white rounded-2xl p-8 border dark:border-slate-700 border-slate-200 shadow-lg">
+            <form id="signupForm" class="space-y-5">
+                <!-- Full Name -->
+                <div>
+                    <label class="block text-sm font-medium dark:text-slate-300 text-slate-700 mb-2">Full Name</label>
+                    <input type="text" placeholder="John Doe" required
+                        class="w-full px-4 py-3 rounded-xl dark:bg-slate-700 bg-slate-50 border dark:border-slate-600 border-slate-200 dark:text-white text-slate-800 dark:placeholder-slate-400 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all">
+                </div>
+                <!-- Email -->
+                <div>
+                    <label class="block text-sm font-medium dark:text-slate-300 text-slate-700 mb-2">Email Address</label>
+                    <input type="email" placeholder="john@example.com" required
+                        class="w-full px-4 py-3 rounded-xl dark:bg-slate-700 bg-slate-50 border dark:border-slate-600 border-slate-200 dark:text-white text-slate-800 dark:placeholder-slate-400 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all">
+                </div>
+                <!-- Password -->
+                <div>
+                    <label class="block text-sm font-medium dark:text-slate-300 text-slate-700 mb-2">Password</label>
+                    <div class="relative">
+                        <input id="signupPassword" type="password" placeholder="Min. 8 characters" required
+                            class="w-full px-4 py-3 rounded-xl dark:bg-slate-700 bg-slate-50 border dark:border-slate-600 border-slate-200 dark:text-white text-slate-800 dark:placeholder-slate-400 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all pr-12">
+                        <button type="button" id="toggleSignupPassword"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-lg dark:text-slate-400 text-slate-400 hover:text-primary transition-colors">
+                            👁️
+                        </button>
+                    </div>
+                    <!-- Password Strength -->
+                    <div class="mt-2 flex space-x-1">
+                        <div class="strength-bar flex-1 h-1 rounded-full bg-slate-200 dark:bg-slate-600 transition-all"></div>
+                        <div class="strength-bar flex-1 h-1 rounded-full bg-slate-200 dark:bg-slate-600 transition-all"></div>
+                        <div class="strength-bar flex-1 h-1 rounded-full bg-slate-200 dark:bg-slate-600 transition-all"></div>
+                        <div class="strength-bar flex-1 h-1 rounded-full bg-slate-200 dark:bg-slate-600 transition-all"></div>
+                    </div>
+                    <p id="strengthText" class="text-xs mt-1 dark:text-slate-400 text-slate-400"></p>
+                </div>
+                <!-- Confirm Password -->
+                <div>
+                    <label class="block text-sm font-medium dark:text-slate-300 text-slate-700 mb-2">Confirm Password</label>
+                    <input id="confirmPassword" type="password" placeholder="Re-enter password" required
+                        class="w-full px-4 py-3 rounded-xl dark:bg-slate-700 bg-slate-50 border dark:border-slate-600 border-slate-200 dark:text-white text-slate-800 dark:placeholder-slate-400 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all">
+                    <p id="matchText" class="text-xs mt-1"></p>
+                </div>
+                <!-- Terms -->
+                <div class="flex items-start space-x-2">
+                    <input type="checkbox" id="terms" required class="w-4 h-4 mt-0.5 text-primary rounded border-slate-300 focus:ring-primary">
+                    <label for="terms" class="text-sm dark:text-slate-400 text-slate-500">
+                        I agree to the <a href="#" class="text-primary hover:underline">Terms of Service</a> and <a href="#" class="text-primary hover:underline">Privacy Policy</a>
+                    </label>
+                </div>
+                <!-- Submit -->
+                <button type="submit"
+                    class="w-full py-3 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 hover:scale-105 transition-all duration-200 shadow-lg shadow-indigo-500/25">
+                    Create Account 🚀
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="flex items-center my-6">
+                <div class="flex-1 border-t dark:border-slate-600 border-slate-200"></div>
+                <span class="mx-4 text-sm dark:text-slate-400 text-slate-400">or</span>
+                <div class="flex-1 border-t dark:border-slate-600 border-slate-200"></div>
+            </div>
+
+            <!-- Login Link -->
+            <p class="text-center text-sm dark:text-slate-400 text-slate-500">
+                Already have an account?
+                <a href="/login" class="text-primary font-semibold hover:underline">Login</a>
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Toggle password visibility
+    document.getElementById('toggleSignupPassword').addEventListener('click', function() {
+        const input = document.getElementById('signupPassword');
+        input.type = input.type === 'password' ? 'text' : 'password';
+        this.textContent = input.type === 'password' ? '👁️' : '🔒';
+    });
+
+    // Password Strength Checker
+    document.getElementById('signupPassword').addEventListener('input', function() {
+        const val = this.value;
+        const bars = document.querySelectorAll('.strength-bar');
+        const text = document.getElementById('strengthText');
+        let strength = 0;
+
+        if (val.length >= 8) strength++;
+        if (/[A-Z]/.test(val)) strength++;
+        if (/[0-9]/.test(val)) strength++;
+        if (/[^A-Za-z0-9]/.test(val)) strength++;
+
+        const colors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-emerald-500'];
+        const labels = ['Weak', 'Fair', 'Good', 'Strong'];
+
+        bars.forEach((bar, i) => {
+            bar.className = 'strength-bar flex-1 h-1 rounded-full transition-all ';
+            bar.className += i < strength ? colors[strength - 1] : 'bg-slate-200 dark:bg-slate-600';
+        });
+
+        text.textContent = val.length > 0 ? `Strength: ${labels[strength - 1] || 'Very Weak'}` : '';
+        text.className = `text-xs mt-1 ${strength >= 3 ? 'text-emerald-500' : 'text-orange-500'}`;
+    });
+
+    // Password Match Checker
+    document.getElementById('confirmPassword').addEventListener('input', function() {
+        const pass = document.getElementById('signupPassword').value;
+        const matchText = document.getElementById('matchText');
+        if (this.value === pass) {
+            matchText.textContent = '✅ Passwords match';
+            matchText.className = 'text-xs mt-1 text-emerald-500';
+        } else {
+            matchText.textContent = '❌ Passwords do not match';
+            matchText.className = 'text-xs mt-1 text-red-500';
+        }
+    });
+</script>
+{% endblock %}

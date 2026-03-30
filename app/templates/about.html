@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}About - Finvestigate 🔍{% endblock %}
+
+{% block content %}
+<section class="py-20 dark:bg-slate-900 bg-slate-50 min-h-screen">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Header -->
+        <div class="text-center mb-16">
+            <div class="inline-flex items-center space-x-2 px-4 py-2 rounded-full dark:bg-slate-800 bg-white border dark:border-slate-700 border-slate-200 shadow-sm mb-6">
+                <span class="text-sm dark:text-slate-300 text-slate-600 font-medium">ℹ️ About Us</span>
+            </div>
+            <h1 class="text-4xl sm:text-5xl font-bold dark:text-white text-slate-800 mb-6">
+                About <span class="gradient-text">Finvestigate</span>
+            </h1>
+            <p class="text-lg dark:text-slate-400 text-slate-500 leading-relaxed">
+                We built Finvestigate because managing personal finances should be simple, powerful, and insightful — not stressful.
+            </p>
+        </div>
+
+        <!-- Mission -->
+        <div class="dark:bg-slate-800 bg-white rounded-2xl p-8 border dark:border-slate-700 border-slate-200 shadow-sm mb-8">
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
+                    <span class="text-xl">🎯</span>
+                </div>
+                <h2 class="text-xl font-bold dark:text-white text-slate-800">Our Mission</h2>
+            </div>
+            <p class="dark:text-slate-400 text-slate-500 leading-relaxed">
+                To empower individuals to take full control of their financial lives by providing them with the tools, insights, and clarity they need to make smarter money decisions every day.
+            </p>
+        </div>
+
+        <!-- Vision -->
+        <div class="dark:bg-slate-800 bg-white rounded-2xl p-8 border dark:border-slate-700 border-slate-200 shadow-sm mb-8">
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                    <span class="text-xl">🔭</span>
+                </div>
+                <h2 class="text-xl font-bold dark:text-white text-slate-800">Our Vision</h2>
+            </div>
+            <p class="dark:text-slate-400 text-slate-500 leading-relaxed">
+                A world where everyone — regardless of financial literacy — can understand, track, and grow their wealth with confidence and ease.
+            </p>
+        </div>
+
+        <!-- Values -->
+        <div class="dark:bg-slate-800 bg-white rounded-2xl p-8 border dark:border-slate-700 border-slate-200 shadow-sm mb-8">
+            <h2 class="text-xl font-bold dark:text-white text-slate-800 mb-6">Our Values</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">🔒</span>
+                    <div>
+                        <h3 class="font-semibold dark:text-white text-slate-800">Privacy First</h3>
+                        <p class="text-sm dark:text-slate-400 text-slate-500">Your financial data is yours. Always.</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">✨</span>
+                    <div>
+                        <h3 class="font-semibold dark:text-white text-slate-800">Simplicity</h3>
+                        <p class="text-sm dark:text-slate-400 text-slate-500">Powerful features with a clean interface.</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">📈</span>
+                    <div>
+                        <h3 class="font-semibold dark:text-white text-slate-800">Growth</h3>
+                        <p class="text-sm dark:text-slate-400 text-slate-500">Helping you grow financially, every day.</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">🤝</span>
+                    <div>
+                        <h3 class="font-semibold dark:text-white text-slate-800">Trust</h3>
+                        <p class="text-sm dark:text-slate-400 text-slate-500">Built on transparency and reliability.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tech Stack -->
+        <div class="dark:bg-slate-800 bg-white rounded-2xl p-8 border dark:border-slate-700 border-slate-200 shadow-sm">
+            <h2 class="text-xl font-bold dark:text-white text-slate-800 mb-6">🛠️ Built With</h2>
+            <div class="flex flex-wrap gap-3">
+                <span class="px-4 py-2 gradient-bg text-white text-sm font-medium rounded-lg">Python</span>
+                <span class="px-4 py-2 gradient-bg text-white text-sm font-medium rounded-lg">Flask</span>
+                <span class="px-4 py-2 gradient-bg text-white text-sm font-medium rounded-lg">PostgreSQL</span>
+                <span class="px-4 py-2 gradient-bg text-white text-sm font-medium rounded-lg">Tailwind CSS</span>
+                <span class="px-4 py-2 gradient-bg text-white text-sm font-medium rounded-lg">SQLAlchemy</span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

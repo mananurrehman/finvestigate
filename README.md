@@ -24,5 +24,27 @@ your income, expenses, and financial habits.
 ## 📦 Getting Started
 > Setup instructions will be added as the project develops.
 
+## Color Scheme 
+```
+Primary:     #6366f1  (Indigo)
+Secondary:   #8b5cf6  (Purple)
+Accent:      #06b6d4  (Cyan)
+Success:     #10b981  (Emerald)
+Warning:     #f59e0b  (Amber)
+Danger:      #ef4444  (Red)
+
+Light Mode:
+  Background: #f8fafc
+  Surface:    #ffffff
+  Text:       #1e293b
+  Muted:      #64748b
+
+Dark Mode:
+  Background: #0f172a
+  Surface:    #1e293b
+  Text:       #f1f5f9
+  Muted:      #94a3b8
+```
+
 ## 📄 License
 MIT License
