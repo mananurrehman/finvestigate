@@ -35,7 +35,7 @@ jobs:
             - name: Run flake8
               run: |
                 echo "Running flake8 on Finvestigate"
-                flake8 app/ run.py --max-line-length=120 --exclude=__init__.py, venv/, .venv/, migrations/, __pycache__/ 
+                flake8 app/ run.py --max-line-length=120 --exclude=__init__.py,venv/,.venv/,migrations/,__pycache__/ 
                 # use || true to prevent the job from failing if flake8 finds issues,
                 echo "flake8 check completed"
 
@@ -63,7 +63,7 @@ jobs:
             - name: Run bandit
               run: | 
                 echo "Running bandit security scan on Finvestigate"
-                bandit -r app/ run.py --exclude __init__.py,venv/, .venv/, migrations/, __pycache__
+                bandit -r app/ run.py --exclude __init__.py,venv/,.venv/,migrations/,__pycache__
                 echo "Bandit security scan completed"
     
     secret-scan:
