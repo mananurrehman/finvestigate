@@ -30,6 +30,7 @@ def seed():
                 Category(name="Salary",       type=TransactionType.INCOME,  icon="💼", is_default=True),
                 Category(name="Freelance",     type=TransactionType.INCOME,  icon="💻", is_default=True),
                 Category(name="Investment",    type=TransactionType.INCOME,  icon="📈", is_default=True),
+                Category(name="Forex Trading",  type=TransactionType.INCOME,  icon="💹", is_default=True),
                 Category(name="Other Income",  type=TransactionType.INCOME,  icon="💰", is_default=True),
                 # Expense
                 Category(name="Food",          type=TransactionType.EXPENSE, icon="🍔", is_default=True),
