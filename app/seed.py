@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from app import create_app, db
 from app.models import Role, RoleType, Category, TransactionType
 
+
 def seed():
     app = create_app()
     with app.app_context():
@@ -48,6 +49,7 @@ def seed():
             print("⏭️  Categories already exist, skipping...")
 
         print("🎉 Seeding complete!")
+
 
 if __name__ == "__main__":
     seed()

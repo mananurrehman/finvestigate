@@ -40,7 +40,7 @@ jobs:
                 echo "flake8 check completed"
 
     security-scan:
-        name: Security Scan
+        name: Security Scan (bandit)
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
@@ -67,7 +67,7 @@ jobs:
                 echo "Bandit security scan completed"
     
     secret-scan:
-        name: Secret Scan
+        name: Secret Scan (gitleaks)
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
@@ -81,7 +81,7 @@ jobs:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
     dependency-audit: 
-      name: Dependency Audit
+      name: Dependency Audit (pip-audit)
       runs-on: ubuntu-latest
       steps:
         - name: Checkout code
