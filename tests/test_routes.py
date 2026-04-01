@@ -4,20 +4,21 @@ from app import create_app, db
 from app.models import User, Role, RoleType, Category, Transaction, TransactionType
 from datetime import date
 
-
 # ============================================================
 # FIXTURES
 # ============================================================
 
+
 @pytest.fixture
 def app():
-    app = create_app()
-    app.config.update({
-        "TESTING": True,
-        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "WTF_CSRF_ENABLED": False,
-        "SECRET_KEY": "ci-test-secret-key",
-    })
+    app = create_app(
+        test_config={
+            "TESTING": True,
+            "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+            "WTF_CSRF_ENABLED": False,
+            "SECRET_KEY": "ci-test-secret-key",
+        }
+    )
 
     with app.app_context():
         db.create_all()
@@ -49,10 +50,14 @@ def logged_in_client(app, client):
         db.session.add(user)
         db.session.commit()
 
-    client.post("/login", data={
-        "email": "test@example.com",
-        "password": "TestPass123",
-    }, follow_redirects=True)
+    client.post(
+        "/login",
+        data={
+            "email": "test@example.com",
+            "password": "TestPass123",
+        },
+        follow_redirects=True,
+    )
 
     return client
 
@@ -72,7 +77,9 @@ def _seed_categories():
     if Category.query.first():
         return
     categories = [
-        Category(name="Salary", icon="💼", type=TransactionType.INCOME, is_default=True),
+        Category(
+            name="Salary", icon="💼", type=TransactionType.INCOME, is_default=True
+        ),
         Category(name="Food", icon="🍔", type=TransactionType.EXPENSE, is_default=True),
     ]
     db.session.add_all(categories)
@@ -82,6 +89,7 @@ def _seed_categories():
 # ============================================================
 # PUBLIC ROUTES
 # ============================================================
+
 
 class TestPublicRoutes:
 
@@ -105,6 +113,7 @@ class TestPublicRoutes:
 # ============================================================
 # AUTH PROTECTION
 # ============================================================
+
 
 class TestAuthProtection:
 
@@ -133,6 +142,7 @@ class TestAuthProtection:
 # DASHBOARD
 # ============================================================
 
+
 class TestDashboard:
 
     def test_dashboard_loads_for_logged_in_user(self, logged_in_client):
@@ -148,6 +158,7 @@ class TestDashboard:
 # ADD TRANSACTION
 # ============================================================
 
+
 class TestAddTransaction:
 
     def _get_category_id(self, app, txn_type):
@@ -156,56 +167,76 @@ class TestAddTransaction:
 
     def test_add_income_transaction(self, app, logged_in_client):
         category_id = self._get_category_id(app, TransactionType.INCOME)
-        response = logged_in_client.post("/dashboard/add-transaction", data={
-            "title": "Monthly Salary",
-            "amount": "50000",
-            "type": "income",
-            "category_id": category_id,
-            "date": "2025-01-15",
-            "note": "January salary",
-        }, follow_redirects=True)
+        response = logged_in_client.post(
+            "/dashboard/add-transaction",
+            data={
+                "title": "Monthly Salary",
+                "amount": "50000",
+                "type": "income",
+                "category_id": category_id,
+                "date": "2025-01-15",
+                "note": "January salary",
+            },
+            follow_redirects=True,
+        )
         assert response.status_code == 200
         assert b"added successfully" in response.data
 
     def test_add_expense_transaction(self, app, logged_in_client):
         category_id = self._get_category_id(app, TransactionType.EXPENSE)
-        response = logged_in_client.post("/dashboard/add-transaction", data={
-            "title": "Groceries",
-            "amount": "2000",
-            "type": "expense",
-            "category_id": category_id,
-            "date": "2025-01-16",
-            "note": "",
-        }, follow_redirects=True)
+        response = logged_in_client.post(
+            "/dashboard/add-transaction",
+            data={
+                "title": "Groceries",
+                "amount": "2000",
+                "type": "expense",
+                "category_id": category_id,
+                "date": "2025-01-16",
+                "note": "",
+            },
+            follow_redirects=True,
+        )
         assert response.status_code == 200
 
     def test_add_transaction_missing_fields(self, logged_in_client):
-        response = logged_in_client.post("/dashboard/add-transaction", data={
-            "title": "",
-            "amount": "",
-            "type": "income",
-            "date": "",
-        }, follow_redirects=True)
+        response = logged_in_client.post(
+            "/dashboard/add-transaction",
+            data={
+                "title": "",
+                "amount": "",
+                "type": "income",
+                "date": "",
+            },
+            follow_redirects=True,
+        )
         assert response.status_code == 200
         assert b"required fields" in response.data
 
     def test_add_transaction_negative_amount(self, logged_in_client):
-        response = logged_in_client.post("/dashboard/add-transaction", data={
-            "title": "Bad Entry",
-            "amount": "-500",
-            "type": "expense",
-            "date": "2025-01-16",
-        }, follow_redirects=True)
+        response = logged_in_client.post(
+            "/dashboard/add-transaction",
+            data={
+                "title": "Bad Entry",
+                "amount": "-500",
+                "type": "expense",
+                "date": "2025-01-16",
+            },
+            follow_redirects=True,
+        )
         assert response.status_code == 200
         assert b"greater than 0" in response.data
 
     def test_add_transaction_invalid_amount(self, logged_in_client):
-        response = logged_in_client.post("/dashboard/add-transaction", data={
-            "title": "Bad Entry",
-            "amount": "abc",
-            "type": "expense",
-            "date": "2025-01-16",
-        }, follow_redirects=True)
+        response = logged_in_client.post(
+            "/dashboard/add-transaction",
+            data={
+                "title": "Bad Entry",
+                "amount": "abc",
+                "type": "expense",
+                "date": "2025-01-16",
+            },
+            follow_redirects=True,
+        )
         assert response.status_code == 200
         assert b"Invalid amount" in response.data
 
@@ -213,6 +244,7 @@ class TestAddTransaction:
 # ============================================================
 # TRANSACTIONS LIST
 # ============================================================
+
 
 class TestTransactionsList:
 
@@ -237,6 +269,7 @@ class TestTransactionsList:
 # EDIT TRANSACTION
 # ============================================================
 
+
 class TestEditTransaction:
 
     def _create_transaction(self, app):
@@ -258,18 +291,22 @@ class TestEditTransaction:
     def test_edit_transaction_success(self, app, logged_in_client):
         txn_id = self._create_transaction(app)
         with app.app_context():
-            category_id = Category.query.filter_by(
-                type=TransactionType.EXPENSE
-            ).first().id
+            category_id = (
+                Category.query.filter_by(type=TransactionType.EXPENSE).first().id
+            )
 
-        response = logged_in_client.post(f"/transactions/edit/{txn_id}", data={
-            "title": "Updated Title",
-            "amount": "1500",
-            "type": "expense",
-            "category_id": category_id,
-            "date": "2025-01-12",
-            "note": "updated note",
-        }, follow_redirects=True)
+        response = logged_in_client.post(
+            f"/transactions/edit/{txn_id}",
+            data={
+                "title": "Updated Title",
+                "amount": "1500",
+                "type": "expense",
+                "category_id": category_id,
+                "date": "2025-01-12",
+                "note": "updated note",
+            },
+            follow_redirects=True,
+        )
         assert response.status_code == 200
         assert b"updated successfully" in response.data
 
@@ -300,18 +337,22 @@ class TestEditTransaction:
             db.session.commit()
             txn_id = txn.id
 
-        response = logged_in_client.post(f"/transactions/edit/{txn_id}", data={
-            "title": "Hacked",
-            "amount": "999",
-            "type": "expense",
-            "date": "2025-01-05",
-        })
+        response = logged_in_client.post(
+            f"/transactions/edit/{txn_id}",
+            data={
+                "title": "Hacked",
+                "amount": "999",
+                "type": "expense",
+                "date": "2025-01-05",
+            },
+        )
         assert response.status_code == 404
 
 
 # ============================================================
 # DELETE TRANSACTION
 # ============================================================
+
 
 class TestDeleteTransaction:
 

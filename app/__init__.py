@@ -20,7 +20,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-def create_app():
+def create_app(test_config=None):
     load_dotenv()
     app = Flask(__name__)
 
@@ -31,11 +31,14 @@ def create_app():
     )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+    # Override with test config if provided
+    if test_config:
+        app.config.update(test_config)
+
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
 
-    # Register Blueprints
     from app.routes import main
 
     app.register_blueprint(main)
