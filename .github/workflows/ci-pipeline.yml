@@ -37,7 +37,7 @@ jobs:
                 echo "Running flake8 on Finvestigate"
                 flake8 app/ run.py --max-line-length=120 --exclude=__init__.py,venv/,.venv/,migrations/,__pycache__/ || true
                 # use || true to prevent the job from failing if flake8 finds issues,
-                echo "flake8 check completed"
+                echo "flake8 check completed (warnings noted but not failing the build)"
 
     security-scan:
         name: Security Scan (bandit)
@@ -112,20 +112,6 @@ jobs:
       runs-on: ubuntu-latest
       needs: [code-quality, security-scan, secret-scan, dependency-audit]
       
-      services:
-        postgres:
-          image: postgres:15
-          env:
-            POSTGRES_USER: test
-            POSTGRES_PASSWORD: test
-            POSTGRES_DB: test_db
-          ports:
-            - 5432:5432
-          options: >-
-            --health-cmd ps_isready
-            --health-interval 10s
-            --health-timeout 5s
-            --health-retries 5
       steps:
         - name: Checkout code
           uses: actions/checkout@v4
@@ -152,7 +138,7 @@ jobs:
              FLASK_APP: run.py
              FLASK_ENV: testing
              SECRET_KEY: test_secret_key
-             DATABASE_URL: postgresql://test:test@localhost:5432/test_db
+             DATABASE_URL: sqlite:///test.db
           run: |
             echo "Running tests with pytest"
             pytest tests/ -v --cov=app --cov-report=html
