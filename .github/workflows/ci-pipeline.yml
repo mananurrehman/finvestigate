@@ -142,14 +142,18 @@ jobs:
             key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
 
         - name: Install dependencies
-          run: pip install -r requirements.txt
+          run: |
+            pip install -r requirements.txt
+            pip install pytest pytest-cov
+
 
         - name: Run tests
           env:
              FLASK_APP: run.py
+             FLASK_ENV: testing
              SECRET_KEY: test_secret_key
              DATABASE_URL: postgresql://test:test@localhost:5432/test_db
           run: |
             echo "Running tests with pytest"
-            pytest tests/ -v
+            pytest tests/ -v --cov=app --cov-report=html
             echo "All Tests completed"
