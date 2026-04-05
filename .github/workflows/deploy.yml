@@ -4,8 +4,6 @@ on:
     workflows: ["docker-security"]
     types:
       - completed
-    branches:
-      - main
 
 jobs: 
     deploy: 

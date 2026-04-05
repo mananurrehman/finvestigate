@@ -1,12 +1,10 @@
-name: 02 - Docker Security
+name: docker-security
 
 on:
   workflow_run:
     workflows: ["ci-pipeline"]
     types:
       - completed
-    branches:
-      - main
 
 jobs:
     
