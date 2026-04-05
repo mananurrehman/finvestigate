@@ -1,0 +1,60 @@
+name: 03 - Deploy to EC2
+on: 
+   workflow_run:
+    workflows: ["02 - Docker Security"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs: 
+    deploy: 
+        name: Deploy Finvestigate to EC2
+        runs-on: ubuntu-latest
+        steps: 
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Deploy to EC2 vis SSH
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                host: ${{ secrets.EC2_HOST }}
+                username: ${{ secrets.EC2_USERNAME }}
+                key: ${{ secrets.EC2_SSH_KEY }}
+                script: |
+                    set -e
+                    echo "Starting Finvestigate deployment..."
+
+                    cd /home/ubuntu/finvestigate
+
+                    if [ -d ".git" ]; then
+                        echo "Pulling latest code..."
+                        git pull origin main
+                    else
+                        echo "Cloning repository..."
+                        git clone https://github.com/mananurrehman/finvestigate.git /tmp/finvestigate-temp
+                        cp -r /tmp/finvestigate-temp/. /home/ubuntu/finvestigate/
+                        rm -rf /tmp/finvestigate-temp
+                    fi
+
+                    echo "Stopping existing containers..."
+                    docker compose down || true
+
+                    echo "Building Docker image..."
+                    echo "Pulling latest image from DockerHub..."
+                    docker pull ${{ secrets.DOCKERHUB_USERNAME }}/finvestigate:latest
+
+                    echo "Starting containers..."
+                    docker compose up -d
+
+                    echo "Waiting for app to start..."
+                    sleep 15
+
+                    echo "Running containers:"
+                    docker compose ps
+
+                    echo "Recent web logs:"
+                    docker compose logs web --tail=20
+
+                    echo "Finvestigate deployed successfully!"  
+                    echo "You can access the app at http://${{ secrets.EC2_HOST }}:5000"

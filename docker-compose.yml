@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # ========== FLASK APP ==========
+  web:
+    image: mananurrehman/finvestigate:latest
+    container_name: finvestigate-web
+    ports:
+      - "5002:5000"
+    env_file:
+      - .env.production
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    volumes:
+      - upload_data:/app/app/static/images/rooms/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - finvestigate-network
+
+  # ========== POSTGRESQL ==========
+  db:
+    image: postgres:15-alpine
+    container_name: finvestigate-db
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - finvestigate-network
+
+# ========== PERSISTENT VOLUMES ==========
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/ubuntu/finvestigate-data/postgres
+  upload_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/ubuntu/finvestigate-data/uploads
+
+# ========== NETWORK ==========
+networks:
+  finvestigate-network:
+    driver: bridge
