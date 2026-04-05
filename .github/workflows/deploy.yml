@@ -1,10 +1,12 @@
 name: deploy-to-ec2
 on: 
-   workflow_run:
+  workflow_run:
     workflows: ["docker-security"]
     types:
       - completed
-
+    branches:
+      - main
+      
 jobs: 
     deploy: 
         name: Deploy Finvestigate to EC2

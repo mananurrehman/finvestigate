@@ -5,6 +5,8 @@ on:
     workflows: ["ci-pipeline"]
     types:
       - completed
+    branches:
+      - main
 
 jobs:
     
