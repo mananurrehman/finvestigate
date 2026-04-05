@@ -2,7 +2,7 @@ name: 02 - Docker Security
 
 on:
   workflow_run:
-    workflows: ["0 - CI Pipeline"]
+    workflows: ["ci-pipeline"]
     types:
       - completed
     branches:
