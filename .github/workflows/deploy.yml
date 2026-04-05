@@ -1,7 +1,7 @@
-name: 03 - Deploy to EC2
+name: deploy-to-ec2
 on: 
    workflow_run:
-    workflows: ["02 - Docker Security"]
+    workflows: ["docker-security"]
     types:
       - completed
     branches:
