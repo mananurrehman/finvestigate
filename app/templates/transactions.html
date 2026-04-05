@@ -1,0 +1,649 @@
+{% extends "base.html" %}
+{% block title %}Transactions - Finvestigate{% endblock %}
+
+{% block content %}
+<section class="min-h-screen dark:bg-slate-900 bg-slate-50 py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- ── Header ─────────────────────────────────────────── -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-bold dark:text-white text-slate-800">
+                📋 All Transactions
+            </h1>
+            <p class="text-sm dark:text-slate-400 text-slate-500 mt-1">
+                Manage and track all your transactions
+            </p>
+        </div>
+        <button onclick="openAddModal()"
+            class="flex items-center space-x-2 px-4 py-2 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 hover:scale-105 transition-all shadow-lg shadow-indigo-500/25">
+            <span class="text-lg">+</span>
+            <span>Add Transaction</span>
+        </button>
+    </div>
+
+    <!-- ── Summary Cards ──────────────────────────────────── -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <!-- Total Count -->
+        <div class="dark:bg-slate-800 bg-white rounded-2xl p-4 border dark:border-slate-700 border-slate-200 shadow-sm flex items-center space-x-4">
+            <div class="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
+                <span class="text-xl">📋</span>
+            </div>
+            <div>
+                <p class="text-xs dark:text-slate-400 text-slate-500">Total Records</p>
+                <p class="text-xl font-bold dark:text-white text-slate-800">
+                    {{ transactions.total }}
+                </p>
+            </div>
+        </div>
+        <!-- Income -->
+        <div class="dark:bg-slate-800 bg-white rounded-2xl p-4 border dark:border-slate-700 border-slate-200 shadow-sm flex items-center space-x-4">
+            <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
+                <span class="text-xl">📈</span>
+            </div>
+            <div>
+                <p class="text-xs dark:text-slate-400 text-slate-500">Total Income</p>
+                <p class="text-xl font-bold text-emerald-500">
+                    {{ currency }} {{ "{:,.0f}".format(total_income) }}
+                </p>
+            </div>
+        </div>
+        <!-- Expenses -->
+        <div class="dark:bg-slate-800 bg-white rounded-2xl p-4 border dark:border-slate-700 border-slate-200 shadow-sm flex items-center space-x-4">
+            <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl flex items-center justify-center">
+                <span class="text-xl">📉</span>
+            </div>
+            <div>
+                <p class="text-xs dark:text-slate-400 text-slate-500">Total Expenses</p>
+                <p class="text-xl font-bold text-red-500">
+                    {{ currency }} {{ "{:,.0f}".format(total_expenses) }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Filters ────────────────────────────────────────── -->
+    <div class="dark:bg-slate-800 bg-white rounded-2xl p-4 border dark:border-slate-700 border-slate-200 shadow-sm mb-6">
+        <form method="GET" action="{{ url_for('main.transactions') }}"
+              class="flex flex-col sm:flex-row gap-3">
+
+            <!-- Search -->
+            <div class="flex-1">
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="🔍 Search by title or note..."
+                    value="{{ search_query }}"
+                    class="w-full px-4 py-2.5 rounded-xl dark:bg-slate-700 bg-slate-50 border dark:border-slate-600 border-slate-200 dark:text-white text-slate-800 dark:placeholder-slate-400 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all text-sm"
+                >
+            </div>
+
+            <!-- Type Filter -->
+            <select name="type"
+                class="px-4 py-2.5 rounded-xl dark:bg-slate-700 bg-slate-50 border dark:border-slate-600 border-slate-200 dark:text-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary transition-all text-sm">
+                <option value="all"     {% if filter_type == 'all'     %}selected{% endif %}>All Types</option>
+                <option value="income"  {% if filter_type == 'income'  %}selected{% endif %}>📈 Income</option>
+                <option value="expense" {% if filter_type == 'expense' %}selected{% endif %}>📉 Expense</option>
+            </select>
+
+            <!-- Category Filter -->
+            <select name="category"
+                class="px-4 py-2.5 rounded-xl dark:bg-slate-700 bg-slate-50 border dark:border-slate-600 border-slate-200 dark:text-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary transition-all text-sm">
+                <option value="all">All Categories</option>
+                {% for cat in all_categories %}
+                    <option value="{{ cat.id }}"
+                        {% if filter_category == cat.id|string %}selected{% endif %}>
+                        {{ cat.icon }} {{ cat.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <!-- Month Filter -->
+            <select name="month"
+                class="px-4 py-2.5 rounded-xl dark:bg-slate-700 bg-slate-50 border dark:border-slate-600 border-slate-200 dark:text-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary transition-all text-sm">
+                <option value="all">All Months</option>
+                {% for m in months %}
+                    <option value="{{ m.month }}"
+                        {% if filter_month == m.month %}selected{% endif %}>
+                        {{ m.month }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <!-- Buttons -->
+            <button type="submit"
+                class="px-4 py-2.5 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 transition-all text-sm">
+                Filter
+            </button>
+            <a href="{{ url_for('main.transactions') }}"
+                class="px-4 py-2.5 dark:bg-slate-700 bg-slate-100 dark:text-slate-300 text-slate-600 font-semibold rounded-xl hover:opacity-90 transition-all text-sm text-center">
+                Reset
+            </a>
+        </form>
+    </div>
+
+    <!-- ── Transactions Table ─────────────────────────────── -->
+    <div class="dark:bg-slate-800 bg-white rounded-2xl border dark:border-slate-700 border-slate-200 shadow-sm overflow-hidden">
+
+        {% if transactions.items %}
+            <!-- Desktop Table -->
+            <div class="hidden md:block overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b dark:border-slate-700 border-slate-200">
+                            <th class="text-left px-6 py-4 text-xs font-semibold dark:text-slate-400 text-slate-500 uppercase tracking-wider">Date</th>
+                            <th class="text-left px-6 py-4 text-xs font-semibold dark:text-slate-400 text-slate-500 uppercase tracking-wider">Title</th>
+                            <th class="text-left px-6 py-4 text-xs font-semibold dark:text-slate-400 text-slate-500 uppercase tracking-wider">Category</th>
+                            <th class="text-left px-6 py-4 text-xs font-semibold dark:text-slate-400 text-slate-500 uppercase tracking-wider">Type</th>
+                            <th class="text-right px-6 py-4 text-xs font-semibold dark:text-slate-400 text-slate-500 uppercase tracking-wider">Amount</th>
+                            <th class="text-center px-6 py-4 text-xs font-semibold dark:text-slate-400 text-slate-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y dark:divide-slate-700 divide-slate-100">
+                        {% for txn in transactions.items %}
+                        <tr class="hover:dark:bg-slate-700/30 hover:bg-slate-50 transition-colors">
+                            <!-- Date -->
+                            <td class="px-6 py-4 text-sm dark:text-slate-400 text-slate-500 whitespace-nowrap">
+                                {{ txn.date.strftime('%d %b %Y') }}
+                            </td>
+                            <!-- Title + Note -->
+                            <td class="px-6 py-4">
+                                <p class="text-sm font-semibold dark:text-white text-slate-800">
+                                    {{ txn.title }}
+                                </p>
+                                {% if txn.note %}
+                                    <p class="text-xs dark:text-slate-400 text-slate-500 mt-0.5 truncate max-w-xs">
+                                        {{ txn.note }}
+                                    </p>
+                                {% endif %}
+                            </td>
+                            <!-- Category -->
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg text-xs font-medium dark:bg-slate-700 bg-slate-100 dark:text-slate-300 text-slate-600">
+                                    <span>{{ txn.category.icon if txn.category else '💸' }}</span>
+                                    <span>{{ txn.category.name if txn.category else 'Uncategorized' }}</span>
+                                </span>
+                            </td>
+                            <!-- Type -->
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold
+                                    {% if txn.type.value == 'income' %}
+                                        bg-emerald-500/10 text-emerald-500
+                                    {% else %}
+                                        bg-red-500/10 text-red-500
+                                    {% endif %}">
+                                    {% if txn.type.value == 'income' %}📈 Income
+                                    {% else %}📉 Expense{% endif %}
+                                </span>
+                            </td>
+                            <!-- Amount -->
+                            <td class="px-6 py-4 text-right">
+                                <span class="text-sm font-bold
+                                    {% if txn.type.value == 'income' %}
+                                        text-emerald-500
+                                    {% else %}
+                                        text-red-500
+                                    {% endif %}">
+                                    {% if txn.type.value == 'income' %}+{% else %}-{% endif %}
+                                    {{ currency }} {{ "{:,.0f}".format(txn.amount) }}
+                                </span>
+                            </td>
+                            <!-- Actions -->
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-center space-x-2">
+                                    <!-- Edit Button -->
+                                    <button
+                                        onclick="openEditModal(
+                                            {{ txn.id }},
+                                            '{{ txn.title | replace("'", "\\'") }}',
+                                            '{{ txn.amount }}',
+                                            '{{ txn.type.value }}',
+                                            '{{ txn.category_id or "" }}',
+                                            '{{ txn.date }}',
+                                            '{{ txn.note or "" | replace("'", "\\'") }}'
+                                        )"
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg dark:bg-slate-700 bg-slate-100 dark:text-slate-300 text-slate-600 hover:text-primary hover:bg-primary/10 transition-all text-sm">
+                                        ✏️
+                                    </button>
+                                    <!-- Delete Button -->
+                                    <button
+                                        onclick="openDeleteModal({{ txn.id }}, '{{ txn.title | replace("'", "\\'") }}')"
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg dark:bg-slate-700 bg-slate-100 dark:text-slate-300 text-slate-600 hover:text-danger hover:bg-danger/10 transition-all text-sm">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobile Cards -->
+            <div class="md:hidden divide-y dark:divide-slate-700 divide-slate-100">
+                {% for txn in transactions.items %}
+                <div class="p-4 hover:dark:bg-slate-700/30 hover:bg-slate-50 transition-colors">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0
+                                {% if txn.type.value == 'income' %}bg-emerald-500/10{% else %}bg-red-500/10{% endif %}">
+                                <span class="text-xl">{{ txn.category.icon if txn.category else '💸' }}</span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold dark:text-white text-slate-800">{{ txn.title }}</p>
+                                <p class="text-xs dark:text-slate-400 text-slate-500">
+                                    {{ txn.category.name if txn.category else 'Uncategorized' }} • {{ txn.date.strftime('%d %b %Y') }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-bold
+                                {% if txn.type.value == 'income' %}text-emerald-500{% else %}text-red-500{% endif %}">
+                                {% if txn.type.value == 'income' %}+{% else %}-{% endif %}
+                                {{ currency }} {{ "{:,.0f}".format(txn.amount) }}
+                            </p>
+                            <div class="flex items-center justify-end space-x-2 mt-2">
+                                <button
+                                    onclick="openEditModal(
+                                        {{ txn.id }},
+                                        '{{ txn.title | replace("'", "\\'") }}',
+                                        '{{ txn.amount }}',
+                                        '{{ txn.type.value }}',
+                                        '{{ txn.category_id or "" }}',
+                                        '{{ txn.date }}',
+                                        '{{ txn.note or "" | replace("'", "\\'") }}'
+                                    )"
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg dark:bg-slate-700 bg-slate-100 hover:text-primary transition-all text-sm">
+                                    ✏️
+                                </button>
+                                <button
+                                    onclick="openDeleteModal({{ txn.id }}, '{{ txn.title | replace("'", "\\'") }}')"
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg dark:bg-slate-700 bg-slate-100 hover:text-danger transition-all text-sm">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- ── Pagination ──────────────────────────────── -->
+            {% if transactions.pages > 1 %}
+            <div class="px-6 py-4 border-t dark:border-slate-700 border-slate-200 flex items-center justify-between">
+                <p class="text-sm dark:text-slate-400 text-slate-500">
+                    Showing {{ ((transactions.page - 1) * 10) + 1 }}
+                    to {{ [transactions.page * 10, transactions.total] | min }}
+                    of {{ transactions.total }} results
+                </p>
+                <div class="flex items-center space-x-2">
+                    <!-- Previous -->
+                    {% if transactions.has_prev %}
+                        <a href="{{ url_for('main.transactions',
+                            page=transactions.prev_num,
+                            type=filter_type,
+                            category=filter_category,
+                            month=filter_month,
+                            search=search_query) }}"
+                            class="px-3 py-1.5 text-sm dark:bg-slate-700 bg-slate-100 dark:text-slate-300 text-slate-600 rounded-lg hover:text-primary transition-colors">
+                            ← Prev
+                        </a>
+                    {% endif %}
+
+                    <!-- Page Numbers -->
+                    {% for page_num in transactions.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                        {% if page_num %}
+                            <a href="{{ url_for('main.transactions',
+                                page=page_num,
+                                type=filter_type,
+                                category=filter_category,
+                                month=filter_month,
+                                search=search_query) }}"
+                                class="px-3 py-1.5 text-sm rounded-lg transition-colors
+                                {% if page_num == transactions.page %}
+                                    gradient-bg text-white
+                                {% else %}
+                                    dark:bg-slate-700 bg-slate-100 dark:text-slate-300 text-slate-600 hover:text-primary
+                                {% endif %}">
+                                {{ page_num }}
+                            </a>
+                        {% else %}
+                            <span class="px-2 dark:text-slate-500 text-slate-400">...</span>
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- Next -->
+                    {% if transactions.has_next %}
+                        <a href="{{ url_for('main.transactions',
+                            page=transactions.next_num,
+                            type=filter_type,
+                            category=filter_category,
+                            month=filter_month,
+                            search=search_query) }}"
+                            class="px-3 py-1.5 text-sm dark:bg-slate-700 bg-slate-100 dark:text-slate-300 text-slate-600 rounded-lg hover:text-primary transition-colors">
+                            Next →
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+        {% else %}
+            <!-- Empty State -->
+            <div class="flex flex-col items-center justify-center py-20 text-center">
+                <span class="text-6xl mb-4">💸</span>
+                <p class="dark:text-slate-400 text-slate-500 font-medium mb-2">
+                    {% if search_query or filter_type != 'all' or filter_category != 'all' or filter_month != 'all' %}
+                        No transactions match your filters.
+                    {% else %}
+                        No transactions yet!
+                    {% endif %}
+                </p>
+                <p class="dark:text-slate-500 text-slate-400 text-sm mb-6">
+                    {% if search_query or filter_type != 'all' or filter_category != 'all' or filter_month != 'all' %}
+                        Try adjusting your filters.
+                    {% else %}
+                        Start by adding your first transaction.
+                    {% endif %}
+                </p>
+                {% if not search_query and filter_type == 'all' and filter_category == 'all' and filter_month == 'all' %}
+                    <button onclick="openAddModal()"
+                        class="px-6 py-3 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 transition-all shadow-lg">
+                        + Add First Transaction
+                    </button>
+                {% else %}
+                    <a href="{{ url_for('main.transactions') }}"
+                        class="px-6 py-3 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 transition-all shadow-lg">
+                        Clear Filters
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+</section>
+
+
+<!-- ============================================================
+     ADD TRANSACTION MODAL
+============================================================ -->
+<div id="addModal"
+     class="fixed inset-0 z-50 hidden items-center justify-center p-4"
+     style="background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
+    <div class="w-full max-w-md dark:bg-slate-800 bg-white rounded-2xl shadow-2xl border dark:border-slate-700 border-slate-200 overflow-hidden">
+        <div class="p-6 border-b dark:border-slate-700 border-slate-200 flex items-center justify-between">
+            <h3 class="text-lg font-bold dark:text-white text-slate-800">+ Add Transaction</h3>
+            <button onclick="closeAddModal()"
+                class="w-8 h-8 flex items-center justify-center rounded-lg dark:bg-slate-700 bg-slate-100 dark:text-slate-400 text-slate-500 hover:text-danger transition-colors text-lg">✕</button>
+        </div>
+        <form method="POST" action="{{ url_for('main.add_transaction') }}" class="p-6 space-y-4">
+            <!-- Type Toggle -->
+            <div class="flex rounded-xl overflow-hidden border dark:border-slate-600 border-slate-200">
+                <button type="button" id="addIncomeBtn" onclick="setAddType('income')"
+                    class="flex-1 py-2.5 text-sm font-semibold transition-all bg-emerald-500 text-white">
+                    📈 Income
+                </button>
+                <button type="button" id="addExpenseBtn" onclick="setAddType('expense')"
+                    class="flex-1 py-2.5 text-sm font-semibold transition-all dark:bg-slate-700 bg-slate-100 dark:text-slate-300 text-slate-500">
+                    📉 Expense
+                </button>
+            </div>
+            <input type="hidden" name="type" id="addTransactionType" value="income">
+            <!-- Title -->
+            <div>
+                <label class="block text-sm font-medium dark:text-slate-300 text-slate-700 mb-2">Title</label>
+                <input type="text" name="title" placeholder="e.g. Monthly Salary" required
+                    class="w-full px-4 py-3 rounded-xl dark:bg-slate-700 bg-slate-50 border dark:border-slate-600 border-slate-200 dark:text-white text-slate-800 dark:placeholder-slate-400 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all">
+            </div>
+            <!-- Amount -->
+            <div>
+                <label class="block text-sm font-medium dark:text-slate-300 text-slate-700 mb-2">Amount ({{ currency }})</label>
+                <input type="number" name="amount" placeholder="0" min="1" required
+                    class="w-full px-4 py-3 rounded-xl dark:bg-slate-700 bg-slate-50 border dark:border-slate-600 border-slate-200 dark:text-white text-slate-800 dark:placeholder-slate-400 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all">
+            </div>
+            <!-- Category -->
+            <div>
+                <label class="block text-sm font-medium dark:text-slate-300 text-slate-700 mb-2">Category</label>
+                <select name="category_id" id="addCategorySelect"
+                    class="w-full px-4 py-3 rounded-xl dark:bg-slate-700 bg-slate-50 border dark:border-slate-600 border-slate-200 dark:text-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary transition-all">
+                    <optgroup label="Income" id="addIncomeOptions">
+                        {% for cat in income_categories %}
+                            <option value="{{ cat.id }}">{{ cat.icon }} {{ cat.name }}</option>
+                        {% endfor %}
+                    </optgroup>
+                    <optgroup label="Expense" id="addExpenseOptions" style="display:none">
+                        {% for cat in expense_categories %}
+                            <option value="{{ cat.id }}">{{ cat.icon }} {{ cat.name }}</option>
+                        {% endfor %}
+                    </optgroup>
+                </select>
+            </div>
+            <!-- Date -->
+            <div>
+                <label class="block text-sm font-medium dark:text-slate-300 text-slate-700 mb-2">Date</label>
+                <input type="date" name="date" value="{{ now.strftime('%Y-%m-%d') }}" required
+                    class="w-full px-4 py-3 rounded-xl dark:bg-slate-700 bg-slate-50 border dark:border-slate-600 border-slate-200 dark:text-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary transition-all">
+            </div>
+            <!-- Note -->
+            <div>
+                <label class="block text-sm font-medium dark:text-slate-300 text-slate-700 mb-2">
+                    Note <span class="dark:text-slate-500 text-slate-400">(optional)</span>
+                </label>
+                <textarea name="note" rows="2" placeholder="Add a note..."
+                    class="w-full px-4 py-3 rounded-xl dark:bg-slate-700 bg-slate-50 border dark:border-slate-600 border-slate-200 dark:text-white text-slate-800 dark:placeholder-slate-400 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all resize-none">
+                </textarea>
+            </div>
+            <button type="submit"
+                class="w-full py-3 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-indigo-500/25">
+                Save Transaction ✅
+            </button>
+        </form>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     EDIT TRANSACTION MODAL
+============================================================ -->
+<div id="editModal"
+     class="fixed inset-0 z-50 hidden items-center justify-center p-4"
+     style="background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
+    <div class="w-full max-w-md dark:bg-slate-800 bg-white rounded-2xl shadow-2xl border dark:border-slate-700 border-slate-200 overflow-hidden">
+        <div class="p-6 border-b dark:border-slate-700 border-slate-200 flex items-center justify-between">
+            <h3 class="text-lg font-bold dark:text-white text-slate-800">✏️ Edit Transaction</h3>
+            <button onclick="closeEditModal()"
+                class="w-8 h-8 flex items-center justify-center rounded-lg dark:bg-slate-700 bg-slate-100 dark:text-slate-400 text-slate-500 hover:text-danger transition-colors text-lg">✕</button>
+        </div>
+        <form method="POST" id="editForm" action="" class="p-6 space-y-4">
+            <!-- Type Toggle -->
+            <div class="flex rounded-xl overflow-hidden border dark:border-slate-600 border-slate-200">
+                <button type="button" id="editIncomeBtn" onclick="setEditType('income')"
+                    class="flex-1 py-2.5 text-sm font-semibold transition-all bg-emerald-500 text-white">
+                    📈 Income
+                </button>
+                <button type="button" id="editExpenseBtn" onclick="setEditType('expense')"
+                    class="flex-1 py-2.5 text-sm font-semibold transition-all dark:bg-slate-700 bg-slate-100 dark:text-slate-300 text-slate-500">
+                    📉 Expense
+                </button>
+            </div>
+            <input type="hidden" name="type" id="editTransactionType" value="income">
+            <!-- Title -->
+            <div>
+                <label class="block text-sm font-medium dark:text-slate-300 text-slate-700 mb-2">Title</label>
+                <input type="text" name="title" id="editTitle" required
+                    class="w-full px-4 py-3 rounded-xl dark:bg-slate-700 bg-slate-50 border dark:border-slate-600 border-slate-200 dark:text-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary transition-all">
+            </div>
+            <!-- Amount -->
+            <div>
+                <label class="block text-sm font-medium dark:text-slate-300 text-slate-700 mb-2">Amount ({{ currency }})</label>
+                <input type="number" name="amount" id="editAmount" min="1" required
+                    class="w-full px-4 py-3 rounded-xl dark:bg-slate-700 bg-slate-50 border dark:border-slate-600 border-slate-200 dark:text-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary transition-all">
+            </div>
+            <!-- Category -->
+            <div>
+                <label class="block text-sm font-medium dark:text-slate-300 text-slate-700 mb-2">Category</label>
+                <select name="category_id" id="editCategorySelect"
+                    class="w-full px-4 py-3 rounded-xl dark:bg-slate-700 bg-slate-50 border dark:border-slate-600 border-slate-200 dark:text-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary transition-all">
+                    <optgroup label="Income" id="editIncomeOptions">
+                        {% for cat in income_categories %}
+                            <option value="{{ cat.id }}">{{ cat.icon }} {{ cat.name }}</option>
+                        {% endfor %}
+                    </optgroup>
+                    <optgroup label="Expense" id="editExpenseOptions" style="display:none">
+                        {% for cat in expense_categories %}
+                            <option value="{{ cat.id }}">{{ cat.icon }} {{ cat.name }}</option>
+                        {% endfor %}
+                    </optgroup>
+                </select>
+            </div>
+            <!-- Date -->
+            <div>
+                <label class="block text-sm font-medium dark:text-slate-300 text-slate-700 mb-2">Date</label>
+                <input type="date" name="date" id="editDate" required
+                    class="w-full px-4 py-3 rounded-xl dark:bg-slate-700 bg-slate-50 border dark:border-slate-600 border-slate-200 dark:text-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary transition-all">
+            </div>
+            <!-- Note -->
+            <div>
+                <label class="block text-sm font-medium dark:text-slate-300 text-slate-700 mb-2">
+                    Note <span class="dark:text-slate-500 text-slate-400">(optional)</span>
+                </label>
+                <textarea name="note" id="editNote" rows="2"
+                    class="w-full px-4 py-3 rounded-xl dark:bg-slate-700 bg-slate-50 border dark:border-slate-600 border-slate-200 dark:text-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary transition-all resize-none">
+                </textarea>
+            </div>
+            <button type="submit"
+                class="w-full py-3 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-indigo-500/25">
+                Update Transaction ✅
+            </button>
+        </form>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     DELETE CONFIRMATION MODAL
+============================================================ -->
+<div id="deleteModal"
+     class="fixed inset-0 z-50 hidden items-center justify-center p-4"
+     style="background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
+    <div class="w-full max-w-sm dark:bg-slate-800 bg-white rounded-2xl shadow-2xl border dark:border-slate-700 border-slate-200 overflow-hidden">
+        <div class="p-6 text-center">
+            <div class="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <span class="text-3xl">🗑️</span>
+            </div>
+            <h3 class="text-lg font-bold dark:text-white text-slate-800 mb-2">Delete Transaction</h3>
+            <p class="text-sm dark:text-slate-400 text-slate-500 mb-6">
+                Are you sure you want to delete
+                <strong id="deleteTitle" class="dark:text-white text-slate-800"></strong>?
+                This action cannot be undone.
+            </p>
+            <div class="flex space-x-3">
+                <button onclick="closeDeleteModal()"
+                    class="flex-1 py-3 dark:bg-slate-700 bg-slate-100 dark:text-slate-300 text-slate-600 font-semibold rounded-xl hover:opacity-90 transition-all">
+                    Cancel
+                </button>
+                <form method="POST" id="deleteForm" action="">
+                    <button type="submit"
+                        class="w-full py-3 px-6 bg-red-500 text-white font-semibold rounded-xl hover:opacity-90 transition-all">
+                        Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+<script>
+
+// ===== ADD MODAL =====
+function openAddModal() {
+    document.getElementById('addModal').classList.remove('hidden');
+    document.getElementById('addModal').classList.add('flex');
+}
+function closeAddModal() {
+    document.getElementById('addModal').classList.add('hidden');
+    document.getElementById('addModal').classList.remove('flex');
+}
+document.getElementById('addModal').addEventListener('click', function(e) {
+    if (e.target === this) closeAddModal();
+});
+
+// ===== ADD TYPE TOGGLE =====
+function setAddType(type) {
+    document.getElementById('addTransactionType').value = type;
+    if (type === 'income') {
+        document.getElementById('addIncomeBtn').className  = 'flex-1 py-2.5 text-sm font-semibold transition-all bg-emerald-500 text-white';
+        document.getElementById('addExpenseBtn').className = 'flex-1 py-2.5 text-sm font-semibold transition-all dark:bg-slate-700 bg-slate-100 dark:text-slate-300 text-slate-500';
+        document.getElementById('addIncomeOptions').style.display  = '';
+        document.getElementById('addExpenseOptions').style.display = 'none';
+    } else {
+        document.getElementById('addExpenseBtn').className = 'flex-1 py-2.5 text-sm font-semibold transition-all bg-red-500 text-white';
+        document.getElementById('addIncomeBtn').className  = 'flex-1 py-2.5 text-sm font-semibold transition-all dark:bg-slate-700 bg-slate-100 dark:text-slate-300 text-slate-500';
+        document.getElementById('addExpenseOptions').style.display = '';
+        document.getElementById('addIncomeOptions').style.display  = 'none';
+    }
+}
+
+// ===== EDIT MODAL =====
+function openEditModal(id, title, amount, type, categoryId, date, note) {
+    document.getElementById('editForm').action = `/transactions/edit/${id}`;
+    document.getElementById('editTitle').value  = title;
+    document.getElementById('editAmount').value = amount;
+    document.getElementById('editDate').value   = date;
+    document.getElementById('editNote').value   = note;
+    setEditType(type);
+
+    // Set category
+    if (categoryId) {
+        document.getElementById('editCategorySelect').value = categoryId;
+    }
+
+    document.getElementById('editModal').classList.remove('hidden');
+    document.getElementById('editModal').classList.add('flex');
+}
+function closeEditModal() {
+    document.getElementById('editModal').classList.add('hidden');
+    document.getElementById('editModal').classList.remove('flex');
+}
+document.getElementById('editModal').addEventListener('click', function(e) {
+    if (e.target === this) closeEditModal();
+});
+
+// ===== EDIT TYPE TOGGLE =====
+function setEditType(type) {
+    document.getElementById('editTransactionType').value = type;
+    if (type === 'income') {
+        document.getElementById('editIncomeBtn').className  = 'flex-1 py-2.5 text-sm font-semibold transition-all bg-emerald-500 text-white';
+        document.getElementById('editExpenseBtn').className = 'flex-1 py-2.5 text-sm font-semibold transition-all dark:bg-slate-700 bg-slate-100 dark:text-slate-300 text-slate-500';
+        document.getElementById('editIncomeOptions').style.display  = '';
+        document.getElementById('editExpenseOptions').style.display = 'none';
+    } else {
+        document.getElementById('editExpenseBtn').className = 'flex-1 py-2.5 text-sm font-semibold transition-all bg-red-500 text-white';
+        document.getElementById('editIncomeBtn').className  = 'flex-1 py-2.5 text-sm font-semibold transition-all dark:bg-slate-700 bg-slate-100 dark:text-slate-300 text-slate-500';
+        document.getElementById('editExpenseOptions').style.display = '';
+        document.getElementById('editIncomeOptions').style.display  = 'none';
+    }
+}
+
+// ===== DELETE MODAL =====
+function openDeleteModal(id, title) {
+    document.getElementById('deleteForm').action = `/transactions/delete/${id}`;
+    document.getElementById('deleteTitle').textContent = title;
+    document.getElementById('deleteModal').classList.remove('hidden');
+    document.getElementById('deleteModal').classList.add('flex');
+}
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+    document.getElementById('deleteModal').classList.remove('flex');
+}
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteModal();
+});
+
+</script>
+{% endblock %}

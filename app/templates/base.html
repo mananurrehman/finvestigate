@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Finvestigate{% endblock %}</title>
+    
+    <!-- Favicon using emoji -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' style='stop-color:%236366f1'/><stop offset='100%25' style='stop-color:%238b5cf6'/></linearGradient></defs><rect width='100' height='100' rx='20' fill='url(%23g)'/><text y='.9em' font-size='65' font-family='Inter,Arial,sans-serif' font-weight='bold' fill='white' x='50%25' text-anchor='middle' dominant-baseline='auto' dy='10'>F</text></svg>">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary:   '#6366f1',
+                        secondary: '#8b5cf6',
+                        accent:    '#06b6d4',
+                        success:   '#10b981',
+                        warning:   '#f59e0b',
+                        danger:    '#ef4444',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        }
+        .glass {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #6366f1, #06b6d4);
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after { width: 100%; }
+        html.dark body  { background-color: #0f172a; color: #f1f5f9; }
+        html.light body { background-color: #f8fafc; color: #1e293b; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 3px; }
+
+        /* Flash message animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to   { opacity: 1; transform: translateX(0);    }
+        }
+        .animate-fade-in { animation: fadeIn 0.3s ease forwards; }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="transition-colors duration-300">
+
+    <!-- ========================================
+         FLASH MESSAGES
+    ========================================= -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="fixed top-20 right-4 z-50 space-y-2 w-80">
+                {% for category, message in messages %}
+                    <div class="flash-msg p-4 rounded-xl shadow-lg border backdrop-blur-sm animate-fade-in flex items-start justify-between gap-3
+                        {% if category == 'success' %} bg-emerald-500/10 border-emerald-500/30 text-emerald-400
+                        {% elif category == 'error' %}   bg-red-500/10     border-red-500/30     text-red-400
+                        {% elif category == 'info' %}    bg-blue-500/10    border-blue-500/30    text-blue-400
+                        {% else %}                       bg-indigo-500/10  border-indigo-500/30  text-indigo-400
+                        {% endif %}">
+                        <span class="text-sm font-medium">{{ message }}</span>
+                        <button onclick="this.parentElement.remove()" class="text-lg leading-none opacity-60 hover:opacity-100 transition-opacity">&times;</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- ========================================
+         NAVBAR
+    ========================================= -->
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+        <div class="glass border-b border-white/10 dark:bg-slate-900/80 bg-white/80">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+
+                    <!-- Logo -->
+                    <a href="{{ url_for('main.index') }}" class="flex items-center space-x-2">
+                        <div class="w-8 h-8 gradient-bg rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-sm">F</span>
+                        </div>
+                        <span class="text-xl font-bold gradient-text">Finvestigate</span>
+                    </a>
+
+                    <!-- Desktop Nav Links -->
+                    <div class="hidden md:flex items-center space-x-8">
+                        <a href="{{ url_for('main.index') }}"      class="nav-link text-sm font-medium dark:text-slate-300 text-slate-600 hover:text-primary transition-colors">Home</a>
+                        <a href="{{ url_for('main.about') }}"      class="nav-link text-sm font-medium dark:text-slate-300 text-slate-600 hover:text-primary transition-colors">About</a>
+                        <a href="{{ url_for('main.how_to_use') }}" class="nav-link text-sm font-medium dark:text-slate-300 text-slate-600 hover:text-primary transition-colors">How to Use</a>
+                        <a href="{{ url_for('main.contact') }}"    class="nav-link text-sm font-medium dark:text-slate-300 text-slate-600 hover:text-primary transition-colors">Contact</a>
+                    </div>
+
+                    <!-- Right Side -->
+                    <div class="flex items-center space-x-3">
+
+                        <!-- Theme Toggle -->
+                        <button id="themeToggle" class="p-2 rounded-lg dark:bg-slate-800 bg-slate-100 hover:scale-110 transition-transform duration-200">
+                            <span id="themeIcon" class="text-lg">🌙</span>
+                        </button>
+
+                        {% if current_user.is_authenticated %}
+                            <!-- Logged In State -->
+                            <div class="hidden sm:flex items-center space-x-3">
+                                <!-- User Badge -->
+                                <div class="flex items-center space-x-2 px-3 py-1.5 rounded-lg dark:bg-slate-800 bg-slate-100">
+                                    <div class="w-6 h-6 gradient-bg rounded-full flex items-center justify-center">
+                                        <span class="text-white text-xs font-bold">
+                                            {{ current_user.full_name[0].upper() }}
+                                        </span>
+                                    </div>
+                                    <span class="text-sm font-medium dark:text-slate-300 text-slate-600">
+                                        {{ current_user.full_name.split()[0] }}
+                                    </span>
+                                    {% if current_user.is_admin %}
+                                        <span class="text-xs px-1.5 py-0.5 gradient-bg text-white rounded-md font-medium">
+                                            Admin
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <!-- Dashboard Button -->
+                                <a href="{{ url_for('main.dashboard') }}"
+                                class="text-sm font-semibold px-4 py-2 dark:bg-slate-700 bg-slate-100 dark:text-slate-200 text-slate-700 rounded-lg border dark:border-slate-600 border-slate-200 hover:scale-105 transition-all">
+                                    📊 Dashboard
+                                </a>
+                                <!-- Logout -->
+                                <a href="{{ url_for('auth.logout') }}"
+                                class="text-sm font-medium px-4 py-2 rounded-lg border dark:border-slate-600 border-slate-300 dark:text-slate-300 text-slate-600 hover:text-danger hover:border-danger transition-colors">
+                                    Logout
+                                </a>
+                            </div>
+                        {% else %}
+                            <!-- Logged Out State -->
+                            <a href="{{ url_for('auth.login') }}"
+                            class="hidden sm:block text-sm font-medium px-4 py-2 rounded-lg dark:text-slate-300 text-slate-600 hover:text-primary transition-colors">
+                                Login
+                            </a>
+                            <a href="{{ url_for('auth.signup') }}"
+                            class="hidden sm:block text-sm font-semibold px-4 py-2 gradient-bg text-white rounded-lg hover:opacity-90 hover:scale-105 transition-all duration-200 shadow-lg">
+                                Sign Up
+                            </a>
+                        {% endif %}
+
+                        <!-- Mobile Menu Button -->
+                        <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg dark:bg-slate-800 bg-slate-100">
+                            <span id="menuIcon">☰</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ── Mobile Menu ───────────────────────────── -->
+                <div id="mobileMenu" class="hidden md:hidden pb-4">
+                    <div class="flex flex-col space-y-3 pt-2 border-t dark:border-slate-700 border-slate-200">
+                        <a href="{{ url_for('main.index') }}"      ...>🏠 Home</a>
+                        <a href="{{ url_for('main.about') }}"      ...>ℹ️ About</a>
+                        <a href="{{ url_for('main.how_to_use') }}" ...>📖 How to Use</a>
+                        <a href="{{ url_for('main.contact') }}"    ...>📬 Contact</a>
+
+                        <!-- ADD THIS BELOW CONTACT -->
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('main.dashboard') }}"
+                            class="text-sm font-medium dark:text-slate-300 text-slate-600 hover:text-primary py-2 px-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                            📊 Dashboard
+                            </a>
+                            <a href="{{ url_for('main.transactions') }}"
+                            class="text-sm font-medium dark:text-slate-300 text-slate-600 hover:text-primary py-2 px-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                            📋 Transactions
+                            </a>
+                        {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========================================
+         PAGE CONTENT
+    ========================================= -->
+    <main class="pt-16">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ========================================
+         FOOTER
+    ========================================= -->
+    <footer class="dark:bg-slate-900 bg-slate-100 border-t dark:border-slate-800 border-slate-200 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+
+                <!-- Brand -->
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 gradient-bg rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-sm">F</span>
+                        </div>
+                        <span class="text-xl font-bold gradient-text">Finvestigate</span>
+                    </div>
+                    <p class="dark:text-slate-400 text-slate-500 text-sm leading-relaxed max-w-xs">
+                        Investigate your finances. Track smarter. Spend wiser.
+                    </p>
+                </div>
+
+                <!-- Pages -->
+                <div>
+                    <h4 class="font-semibold dark:text-slate-200 text-slate-700 mb-4">Pages</h4>
+                    <ul class="space-y-2">
+                        <li><a href="{{ url_for('main.index') }}"      class="text-sm dark:text-slate-400 text-slate-500 hover:text-primary transition-colors">Home</a></li>
+                        <li><a href="{{ url_for('main.about') }}"      class="text-sm dark:text-slate-400 text-slate-500 hover:text-primary transition-colors">About</a></li>
+                        <li><a href="{{ url_for('main.how_to_use') }}" class="text-sm dark:text-slate-400 text-slate-500 hover:text-primary transition-colors">How to Use</a></li>
+                        <li><a href="{{ url_for('main.contact') }}"    class="text-sm dark:text-slate-400 text-slate-500 hover:text-primary transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+
+                <!-- Account -->
+                <div>
+                    <h4 class="font-semibold dark:text-slate-200 text-slate-700 mb-4">Account</h4>
+                    <ul class="space-y-2">
+                        {% if current_user.is_authenticated %}
+                            <li>
+                                <a href="{{ url_for('auth.logout') }}"
+                                   class="text-sm dark:text-slate-400 text-slate-500 hover:text-danger transition-colors">
+                                    Logout
+                                </a>
+                            </li>
+                        {% else %}
+                            <li><a href="{{ url_for('auth.login') }}"  class="text-sm dark:text-slate-400 text-slate-500 hover:text-primary transition-colors">Login</a></li>
+                            <li><a href="{{ url_for('auth.signup') }}" class="text-sm dark:text-slate-400 text-slate-500 hover:text-primary transition-colors">Sign Up</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t dark:border-slate-800 border-slate-200 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between">
+                <p class="text-sm dark:text-slate-400 text-slate-500">© 2026 Finvestigate. All rights reserved.</p>
+                <p class="text-sm dark:text-slate-400 text-slate-500 mt-2 sm:mt-0">
+                    Built by 
+                    <a href="https://www.linkedin.com/in/mananurrehman/" target="_blank" class="underline hover:text-blue-500">
+                        Manan ur Rehman
+                    </a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================
+         SCRIPTS
+    ========================================= -->
+    <script>
+        // ===== THEME TOGGLE =====
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon   = document.getElementById('themeIcon');
+        const html        = document.documentElement;
+
+        const savedTheme  = localStorage.getItem('theme') || 'dark';
+        html.className    = savedTheme;
+        themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+        themeToggle.addEventListener('click', () => {
+            const isDark = html.classList.contains('dark');
+            html.className        = isDark ? 'light' : 'dark';
+            themeIcon.textContent = isDark ? '🌙' : '☀️';
+            localStorage.setItem('theme', isDark ? 'light' : 'dark');
+        });
+
+        // ===== MOBILE MENU =====
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu    = document.getElementById('mobileMenu');
+        const menuIcon      = document.getElementById('menuIcon');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            menuIcon.textContent = mobileMenu.classList.contains('hidden') ? '☰' : '✕';
+        });
+
+        // ===== NAVBAR SCROLL EFFECT =====
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            window.scrollY > 20
+                ? navbar.classList.add('shadow-lg')
+                : navbar.classList.remove('shadow-lg');
+        });
+
+        // ===== AUTO DISMISS FLASH MESSAGES =====
+        setTimeout(() => {
+            document.querySelectorAll('.flash-msg').forEach(msg => {
+                msg.style.transition = 'opacity 0.5s ease';
+                msg.style.opacity = '0';
+                setTimeout(() => msg.remove(), 500);
+            });
+        }, 4000);
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
