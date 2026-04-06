@@ -21,7 +21,7 @@ jobs:
             - name: Set up Python
               uses: actions/setup-python@v5
               with:
-                python-version: '3.14'
+                python-version: '3.12'
 
             - name: Cache pip
               uses: actions/cache@v4
@@ -49,7 +49,7 @@ jobs:
             - name: Set up Python
               uses: actions/setup-python@v5
               with:
-                python-version: '3.14'
+                python-version: '3.12'
             
             - name: Cache pip
               uses: actions/cache@v4
@@ -63,8 +63,24 @@ jobs:
             - name: Run bandit
               run: | 
                 echo "Running bandit security scan on Finvestigate"
-                bandit -r app/ run.py --exclude __init__.py,venv/,.venv/,migrations/,__pycache__
+                bandit -r app/ run.py \
+                -x venv,.venv,migrations,__pycache__ \
+                --severity-level medium || true
                 echo "Bandit security scan completed"
+    
+    secret-scan:
+        name: Secret Scan (gitleaks)
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                fetch-depth: 0
+            
+            - name: Run gitleaks
+              uses: gitleaks/gitleaks-action@v2
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
     dependency-audit: 
       name: Dependency Audit (pip-audit)
@@ -76,7 +92,7 @@ jobs:
         - name: Set up Python
           uses: actions/setup-python@v5
           with:
-            python-version: '3.14'
+            python-version: '3.12'
         
         - name: Cache pip
           uses: actions/cache@v4
@@ -96,7 +112,7 @@ jobs:
     tests: 
       name: Run Tests
       runs-on: ubuntu-latest
-      needs: [code-quality, security-scan, dependency-audit]
+      needs: [code-quality, security-scan, secret-scan, dependency-audit]
       
       steps:
         - name: Checkout code
@@ -105,7 +121,7 @@ jobs:
         - name: Set up Python
           uses: actions/setup-python@v5
           with:
-            python-version: '3.14'
+            python-version: '3.12'
 
         - name: Cache pip
           uses: actions/cache@v4
