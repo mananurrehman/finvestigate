@@ -1,53 +1,46 @@
 #!/bin/bash
-# entrypoint.sh
-# Runs INSIDE container before Flask starts
-
+# entrypoint.sh - runs inside container before Flask starts
 set -e
 
 echo "=========================================="
-echo "🚀 Finvestigate Container Starting..."
+echo "Finvestigate Container Starting..."
 echo "=========================================="
 
 # ========== WAIT FOR DATABASE ==========
-echo "⏳ Waiting for database..."
+echo "Waiting for database..."
 while ! python -c "
 try:
-    from app import create_app
-    from app.extensions import db
+    from app import create_app, db
     app = create_app('production')
     with app.app_context():
         db.engine.connect()
-        print('connected')
-except Exception:
+except Exception as e:
+    print('Not ready:', e)
     exit(1)
 " 2>/dev/null; do
-    echo "⏳ Database not ready, retrying in 3 seconds..."
+    echo "Database not ready, retrying in 3 seconds..."
     sleep 3
 done
-echo "✅ Database connected!"
+echo "Database connected!"
 
 # ========== RUN MIGRATIONS ==========
-echo "🗄️ Running migrations..."
+echo "Running migrations..."
 python -c "
-try:
-    from app import create_app
-    from flask_migrate import upgrade
-    import os
+import os
+from app import create_app, db
+from flask_migrate import upgrade
 
-    app = create_app('production')
-    with app.app_context():
-        if os.path.exists('migrations'):
-            upgrade()
-            print('✅ Migrations applied!')
-        else:
-            from app.extensions import db
-            db.create_all()
-            print('✅ Tables created (no migrations folder)')
-except Exception as e:
-    print(f'⚠️ Migration note: {e}')
+app = create_app('production')
+with app.app_context():
+    if os.path.exists('migrations'):
+        upgrade()
+        print('Migrations applied!')
+    else:
+        db.create_all()
+        print('Tables created (no migrations folder)')
 "
 
 # ========== START FLASK ==========
-echo "🌐 Starting Flask..."
+echo "Starting Flask..."
 echo "=========================================="
 exec python run.py
