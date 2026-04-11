@@ -11,7 +11,7 @@ echo "Waiting for database..."
 while ! python -c "
 try:
     from app import create_app, db
-    app = create_app('production')
+    app = create_app()
     with app.app_context():
         db.engine.connect()
 except Exception as e:
@@ -30,7 +30,7 @@ import os
 from app import create_app, db
 from flask_migrate import upgrade
 
-app = create_app('production')
+app = create_app()
 with app.app_context():
     if os.path.exists('migrations'):
         upgrade()
