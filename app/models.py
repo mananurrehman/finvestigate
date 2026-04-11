@@ -88,17 +88,6 @@ class User(db.Model, UserMixin):
     def is_user(self):
         return self.role.name == RoleType.USER
 
-    # ── Admin Check (called during registration) ────────────
-    @staticmethod
-    def check_admin_override(email: str) -> bool:
-        """
-        Called during signup only.
-        Reads ADMIN_EMAIL from .env
-        Never hardcoded. Never exposed.
-        """
-        admin_email = os.getenv("ADMIN_EMAIL", "")
-        return email.strip().lower() == admin_email.strip().lower()
-
     def __repr__(self):
         return f"<User {self.username} | Role: {self.role.name}>"
 

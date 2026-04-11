@@ -46,11 +46,12 @@ def signup():
             flash("This username is already taken.", "error")
             return redirect(url_for("auth.signup"))
 
-        # ── RBAC: Admin override check ───────────────────────
-        if User.check_admin_override(email):
-            role = Role.query.filter_by(name=RoleType.ADMIN).first()
-        else:
-            role = Role.query.filter_by(name=RoleType.USER).first()
+        # ── RBAC: Assign Standard USER Role ───────────────────────
+        role = Role.query.filter_by(name=RoleType.USER).first()
+
+        if not role:
+            flash("System Error: Roles not configured. Please contact admin.", "error")
+            return redirect(url_for("auth.signup"))
 
         # ── Create User ──────────────────────────────────────
         new_user = User(
@@ -58,7 +59,7 @@ def signup():
             username=username,
             email=email,
             password=generate_password_hash(password),
-            role_id=role.id,
+            role_id=role.id
         )
         db.session.add(new_user)
         db.session.commit()
