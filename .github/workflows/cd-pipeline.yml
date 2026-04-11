@@ -1,0 +1,164 @@
+name: cd-pipeline
+
+on:
+  workflow_run:
+    workflows: ["ci-pipeline"]
+    types:
+      - completed
+
+jobs:
+    
+    dockerfile-lint:
+        name: Dockerfile Lint (hadolint)
+        runs-on: ubuntu-latest
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Run hadolint
+              uses: hadolint/hadolint-action@v3.1.0
+              with:
+                dockerfile: 'Dockerfile'
+                failure-threshold: 'error'
+              continue-on-error: false
+
+            - name: Show hadolint result
+              run: echo "Hadolint scan Complete!"
+
+    dependency-scan:
+        name: Dependency Scan (pip-audit)
+        runs-on: ubuntu-latest
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+            
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                python-version: '3.12'
+            
+            - name: Install pip-audit
+              run: pip install pip-audit
+
+            - name: Run pip-audit
+              run: |
+                echo "Scanning dependencies for known vulnerabilities..."
+                pip-audit -r requirements.txt || true
+                echo "Pip-audit Scan Complete!"
+    
+    image-scan:
+        name: Image Scan (Trivy)
+        runs-on: ubuntu-latest
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        needs: [dockerfile-lint, dependency-scan]
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Build Docker Image
+              run: | 
+                echo "Building Finvestigate Docker Image"
+                docker build -t finvestigate:test .
+
+            - name: Run Trivy Vulnerability Scan
+              uses: aquasecurity/trivy-action@master
+              with: 
+                image-ref: 'finvestigate:test'
+                format: 'table'
+                exit-code: '0'
+                severity: 'CRITICAL,HIGH'
+                ignore-unfixed: false
+            
+            - name: Show Scan Complete
+              run: echo "Trivy Image Scan Complete!"
+
+    docker-build-push:
+        name: Build & Push to DockerHub
+        runs-on: ubuntu-latest
+        needs: [dockerfile-lint, dependency-scan, image-scan]
+        if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
+        steps:
+          - name: Checkout code
+            uses: actions/checkout@v4
+
+          - name: Login to DockerHub
+            uses: docker/login-action@v3
+            with:
+              username: ${{ secrets.DOCKERHUB_USERNAME }}
+              password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+          - name: Build and push
+            uses: docker/build-push-action@v5
+            with:
+              context: .
+              push: true
+              tags: ${{ secrets.DOCKERHUB_USERNAME }}/finvestigate:latest
+
+    deploy: 
+      name: Deploy Finvestigate to EC2
+      runs-on: ubuntu-latest
+      needs: [docker-build-push]  
+      if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
+      steps: 
+          - name: Deploy to EC2 vis SSH
+            uses: appleboy/ssh-action@v1.0.3
+            with:
+              host: ${{ secrets.EC2_HOST }}
+              username: ${{ secrets.EC2_USERNAME }}
+              key: ${{ secrets.EC2_SSH_KEY }}
+              envs: DOCKERHUB_USERNAME, SECRET_KEY, DATABASE_URL, SECRET_KEY 
+              script: |
+                  set -e
+                  echo "Starting Finvestigate deployment..."
+
+                  APP_DIR="/home/ubuntu/finvestigate"
+                  DATA_DIR="/home/ubuntu/finvestigate-data"
+
+                  echo "=== [1/6] Ensuring directories exist ==="
+                  mkdir -p "$APP_DIR"
+                  mkdir -p "$DATA_DIR/postgres"
+                  mkdir -p "$DATA_DIR/uploads"
+
+                  echo "=== [2/6] Ensuring directories exist ==="
+                  cd "$APP_DIR"
+
+                  if [ -d ".git" ]; then
+                      echo "Updating existing repository..."
+                      git pull origin main
+                  else
+                      echo "Cloning repository..."
+                      git clone https://github.com/mananurrehman/finvestigate.git .
+                  fi
+
+                  echo "=== [3/6] Verifying .env.production is present ==="
+                  if [ ! -f "$APP_DIR/.env.production" ]; then
+                      echo "Error: .env.production file is missing!"
+                      echo "Please place it on the EC2 manually before deploying."
+                      exit 1
+                  fi
+                  echo ".env.production found — OK"
+
+                  echo "=== [4/6] Pulling latest image from DockerHub ==="
+                  docker pull ${{ secrets.DOCKERHUB_USERNAME }}/finvestigate:latest
+
+                  echo "=== [5/6] Restarting Containers ==="
+                  docker compose down --remove-orphans || true
+                  docker compose up -d 
+                  
+                  echo "=== [6/6] Health Check ==="
+                  echo "Waiting 20s for containers to stabilize..."
+                  sleep 20
+
+                  echo "--- Containers Status ---"
+                  docker compose ps
+
+                  echo "--- DB health ---"
+                  docker compose exec -T db pg_isready -U finvestigate_user -d finvestigate
+
+                  echo "--- Recent Web logs ---"
+                  docker compose logs web --tail 30
+
+                  echo "Finvestigate deployed successfully!"  
+                  echo "You can access the app at http://${{ secrets.EC2_HOST }}:5002"
