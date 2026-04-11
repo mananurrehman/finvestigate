@@ -5,8 +5,6 @@ on:
     workflows: ["ci-pipeline"]
     types:
       - completed
-    branches:
-      - dev
 
 jobs:
     
@@ -80,7 +78,7 @@ jobs:
         name: Build & Push to DockerHub
         runs-on: ubuntu-latest
         needs: [dockerfile-lint, dependency-scan, image-scan]
-        if: github.event.workflow_run.head_branch == 'main'
+        if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
         steps:
           - name: Checkout code
             uses: actions/checkout@v4
