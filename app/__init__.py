@@ -102,4 +102,26 @@ def create_app(test_config=None):
     # ── Auto Seed Defaults on Startup ────────────────────────
     seed_defaults(app)
 
+    # ── Register Error Handlers ───────────────────────────────
+    register_error_handlers(app)
+
     return app
+
+def register_error_handlers(app):
+    """
+    Register custom error pages
+    """
+    from flask import render_template
+
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return render_template('errors/404.html'), 404
+
+    @app.errorhandler(500)
+    def internal_server_error(e):
+        db.session.rollback()   # rollback any failed db session
+        return render_template('errors/500.html'), 500
+
+    @app.errorhandler(403)
+    def forbidden(e):
+        return render_template('errors/403.html'), 403

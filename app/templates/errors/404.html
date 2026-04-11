@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}404 - Page Not Found | Finvestigate{% endblock %}
+
+{% block content %}
+<section class="min-h-screen flex items-center justify-center dark:bg-slate-900 bg-slate-50 py-20 relative overflow-hidden">
+
+    <!-- Background Blobs -->
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-20 left-10 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+    </div>
+
+    <div class="relative text-center px-4">
+
+        <!-- Error Code -->
+        <div class="mb-6">
+            <span class="text-9xl sm:text-[180px] font-extrabold gradient-text leading-none">
+                404
+            </span>
+        </div>
+
+        <!-- Icon -->
+        <div class="w-24 h-24 dark:bg-slate-800 bg-white rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-lg border dark:border-slate-700 border-slate-200">
+            <span class="text-5xl">🔍</span>
+        </div>
+
+        <!-- Message -->
+        <h1 class="text-2xl sm:text-3xl font-bold dark:text-white text-slate-800 mb-4">
+            Oops! Page Not Found
+        </h1>
+        <p class="dark:text-slate-400 text-slate-500 text-base sm:text-lg max-w-md mx-auto mb-10 leading-relaxed">
+            Looks like this page went on a vacation. 
+            We couldn't find what you were looking for.
+        </p>
+
+        <!-- Actions -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="{{ url_for('main.index') }}"
+               class="w-full sm:w-auto px-8 py-3 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 hover:scale-105 transition-all duration-200 shadow-lg shadow-indigo-500/25">
+                🏠 Go Home
+            </a>
+            <button onclick="history.back()"
+               class="w-full sm:w-auto px-8 py-3 dark:bg-slate-800 bg-white dark:text-slate-300 text-slate-600 font-semibold rounded-xl border dark:border-slate-700 border-slate-200 hover:scale-105 transition-all duration-200 shadow-sm">
+                ← Go Back
+            </button>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.dashboard') }}"
+                   class="w-full sm:w-auto px-8 py-3 dark:bg-slate-800 bg-white dark:text-slate-300 text-slate-600 font-semibold rounded-xl border dark:border-slate-700 border-slate-200 hover:scale-105 transition-all duration-200 shadow-sm">
+                    📊 Dashboard
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- Fun Message -->
+        <div class="mt-16 inline-flex items-center space-x-2 px-4 py-2 rounded-full dark:bg-slate-800 bg-white border dark:border-slate-700 border-slate-200 shadow-sm">
+            <span class="w-2 h-2 bg-danger rounded-full animate-pulse"></span>
+            <span class="text-sm dark:text-slate-400 text-slate-500">
+                Error 404 • Page not found
+            </span>
+        </div>
+
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Easter egg - Konami code
+    let keys = [];
+    const konami = [38,38,40,40,37,39,37,39,66,65];
+
+    document.addEventListener('keydown', (e) => {
+        keys.push(e.keyCode);
+        keys = keys.slice(-10);
+        if (JSON.stringify(keys) === JSON.stringify(konami)) {
+            document.querySelector('.text-9xl').textContent = '🎉';
+        }
+    });
+</script>
+{% endblock %}
