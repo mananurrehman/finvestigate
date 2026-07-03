@@ -15,9 +15,10 @@ steps:
       sshEndpoint: 'Azure VM SSH'   # <-- must match your SSH service connection name exactly
       runOptions: 'commands'
       commands: |
-        cd ~/finvestigate
-        docker compose pull
-        docker compose up -d
+        pwd
+        cd ~/finvestigate && \
+        docker compose -f ~/finvestigate/docker-compose.yml pull && \
+        docker compose -f ~/finvestigate/docker-compose.yml up -d && \
         docker compose ps
       readyTimeout: '20000'
 
