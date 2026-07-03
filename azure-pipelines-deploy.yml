@@ -1,0 +1,28 @@
+# azure-pipelines-deploy.yml
+# Deploys finvestigate by pulling the latest public image and starting
+# it via the docker-compose.yml that already lives on the VM.
+# No build, no push — image is pulled directly from Docker Hub.
+
+trigger: none   # manual run only — you decide when to redeploy
+
+pool:
+  vmImage: 'ubuntu-latest'   # Microsoft-hosted agent, just used to SSH out
+
+steps:
+  - task: SSH@0
+    displayName: 'SSH into VM and deploy'
+    inputs:
+      sshEndpoint: 'Azure VM SSH'   # <-- must match your SSH service connection name exactly
+      runOptions: 'commands'
+      commands: |
+        cd ~/finvestigate
+        docker compose pull
+        docker compose up -d
+        docker compose ps
+      readyTimeout: '20000'
+
+  - script: |
+      echo "Waiting a few seconds for the app to settle..."
+      sleep 10
+      curl -sSf -o /dev/null -w "HTTP %{http_code}\n" http://$(vmPublicIp):5000 || echo "App not reachable yet — check manually"
+    displayName: 'Basic reachability check'
