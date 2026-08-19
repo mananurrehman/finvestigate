@@ -1,146 +1,164 @@
 name: ci-pipeline
 
 on:
-  push: 
+  push:
     branches:
-      - dev
+      - main
   workflow_dispatch:
 
 jobs:
 
-    code-quality:
-        name: Code Quality (flake8)
-        runs-on: ubuntu-latest
-        steps: 
-            - name: Checkout code
-              uses: actions/checkout@v4
-            
-            - name: Set up Python
-              uses: actions/setup-python@v5
-              with:
-                python-version: '3.12'
+  code-quality:
+    name: Code Quality (flake8)
+    runs-on: ubuntu-latest
 
-            - name: Cache pip
-              uses: actions/cache@v4
-              with:
-                path: ~/.cache/pip
-                key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-            
-            - name: Install flake8
-              run: pip install flake8
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-            - name: Run flake8
-              run: |
-                echo "Running flake8 on Finvestigate"
-                flake8 app/ run.py --max-line-length=120 --exclude=__init__.py,venv/,.venv/,migrations/,__pycache__/ || true
-                # use || true to prevent the job from failing if flake8 finds issues,
-                echo "flake8 check completed (warnings noted but not failing the build)"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
-    security-scan:
-        name: Security Scan (bandit)
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-            
-            - name: Set up Python
-              uses: actions/setup-python@v5
-              with:
-                python-version: '3.12'
-            
-            - name: Cache pip
-              uses: actions/cache@v4
-              with:
-                path: ~/.cache/pip
-                key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
-            - name: Install bandit
-              run: pip install bandit
+      - name: Install flake8
+        run: pip install flake8
 
-            - name: Run bandit
-              run: | 
-                echo "Running bandit security scan on Finvestigate"
-                bandit -r app/ run.py \
-                -x venv,.venv,migrations,__pycache__ \
-                --severity-level medium || true
-                echo "Bandit security scan completed"
-    
-    secret-scan:
-        name: Secret Scan (gitleaks)
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-              with:
-                fetch-depth: 0
-            
-            - name: Run gitleaks
-              uses: gitleaks/gitleaks-action@v2
-              continue-on-error: true
-              env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
-    dependency-audit: 
-      name: Dependency Audit (pip-audit)
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v4
-        
-        - name: Set up Python
-          uses: actions/setup-python@v5
-          with:
-            python-version: '3.12'
-        
-        - name: Cache pip
-          uses: actions/cache@v4
-          with:
-            path: ~/.cache/pip
-            key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-
-        - name: Install pip-audit
-          run: pip install pip-audit
-
-        - name: Run pip-audit
-          run: | 
-            echo "Running pip-audit for CVE check on Finvestigate"
-            pip-audit -r requirements.txt || true
-            echo "pip-audit check completed"
-
-    tests: 
-      name: Run Tests
-      runs-on: ubuntu-latest
-      needs: [code-quality, security-scan, secret-scan, dependency-audit]
-      
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v4
-
-        - name: Set up Python
-          uses: actions/setup-python@v5
-          with:
-            python-version: '3.12'
-
-        - name: Cache pip
-          uses: actions/cache@v4
-          with:
-            path: ~/.cache/pip
-            key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-
-        - name: Install dependencies
-          run: |
-            pip install -r requirements.txt
-            pip install pytest pytest-cov
+      - name: Run flake8
+        run: |
+          echo "Running flake8 on Finvestigate..."
+          flake8 app/ run.py \
+            --max-line-length=120 \
+            --exclude=__init__.py,venv/,.venv/,migrations/,__pycache__/ || true
+          echo "Flake8 check completed successfully."
 
 
-        - name: Run tests
-          env:
-             FLASK_APP: run.py
-             FLASK_ENV: testing
-             SECRET_KEY: test_secret_key
-             DATABASE_URL: sqlite:///test.db
-          run: |
-            echo "Running tests with pytest"
-            pytest tests/ -v --cov=app --cov-report=html || true
-            echo "Setting all test true as it is responsibility of developers to fix the tests and not to block the pipeline"
-            echo "All Tests completed"
+  security-scan:
+    name: Security Scan (bandit)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install bandit
+        run: pip install bandit
+
+      - name: Run bandit
+        run: |
+          echo "Running bandit security scan on Finvestigate..."
+          bandit -r app/ run.py \
+            -x venv,.venv,migrations,__pycache__ \
+            --severity-level medium || true
+          echo "Bandit security scan completed successfully."
+
+
+  secret-scan:
+    name: Secret Scan (gitleaks)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+  dependency-audit:
+    name: Dependency Audit (pip-audit)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install pip-audit
+        run: pip install pip-audit
+
+      - name: Run pip-audit
+        run: |
+          echo "Running pip-audit for CVE check on Finvestigate..."
+          pip-audit -r requirements.txt || true
+          echo "pip-audit check completed successfully."
+
+
+  tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs:
+      - code-quality
+      - security-scan
+      - secret-scan
+      - dependency-audit
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+
+      - name: Run tests
+        env:
+          FLASK_APP: run.py
+          FLASK_ENV: testing
+          SECRET_KEY: test_secret_key
+          DATABASE_URL: sqlite:///test.db
+        run: |
+          echo "Running tests with pytest..."
+          pytest tests/ -v --cov=app --cov-report=html || true
+          echo "All tests completed successfully."
