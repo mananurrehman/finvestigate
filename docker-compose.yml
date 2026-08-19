@@ -4,7 +4,7 @@ services:
     image: mananurrehman/finvestigate:latest
     container_name: finvestigate-web
     ports:
-      - "5002:5000"
+      - "5000:5000"
     env_file:
       - .env.production
     depends_on:

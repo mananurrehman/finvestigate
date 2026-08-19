@@ -161,4 +161,4 @@ jobs:
                   docker compose logs web --tail 30
 
                   echo "Finvestigate deployed successfully!"  
-                  echo "You can access the app at http://${{ secrets.EC2_HOST }}:5002"
+                  echo "You can access the app at http://${{ secrets.EC2_HOST }}:5000"
